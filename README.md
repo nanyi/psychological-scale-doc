@@ -160,7 +160,7 @@ psychological-scale/                 # 项目根目录
 
 ```bash
 # 克隆项目
-git clone https://github.com/your-repo/psychological-scale.git
+git clone https://github.com/nanyi/psychological-scale.git
 
 # 构建后端
 cd psychological-scale

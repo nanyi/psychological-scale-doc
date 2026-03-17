@@ -141,7 +141,10 @@ CREATE TABLE IF NOT EXISTS ps_scale_category (
     status TINYINT NOT NULL DEFAULT 1 COMMENT '状态:0-禁用,1-启用',
     create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     update_time DATETIME COMMENT '更新时间',
+    create_by BIGINT COMMENT '创建人',
+    update_by BIGINT COMMENT '更新人',
     deleted TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除:0-正常,1-删除',
+    version INT DEFAULT 0 COMMENT '版本号',
     INDEX idx_parent_id (parent_id),
     INDEX idx_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='量表分类表';

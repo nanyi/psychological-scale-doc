@@ -8,7 +8,7 @@
 | 版本 | 1.0 |
 | 状态 | 已完成 |
 | 创建日期 | 2026-03-09 |
-| 最后更新 | 2026-03-09 |
+| 最后更新 | 2026-03-17 |
 | 作者 | Ryan |
 
 ## 2. 设计原则
@@ -67,7 +67,7 @@
 
 ### 3.1 用户模块
 
-#### 3.1.1 用户表 (ps_user)
+#### 3.1.1 用户表 (sys_user)
 
 | 字段名 | 类型 | 约束 | 说明 |
 |--------|------|------|------|
@@ -78,21 +78,28 @@
 | avatar | VARCHAR(500) | | 头像URL |
 | phone | VARCHAR(20) | | 手机号 |
 | email | VARCHAR(100) | | 邮箱 |
-| user_type | TINYINT | NOT NULL | 用户类型：1-个人，2-企业 |
+| user_type | TINYINT | NOT NULL DEFAULT 1 | 用户类型：1-个人，2-企业 |
+| gender | TINYINT | NOT NULL DEFAULT 0 | 性别：0-未知，1-男，2-女 |
+| birthday | DATE | | 生日 |
 | enterprise_id | BIGINT | | 企业ID |
+| department_id | BIGINT | | 部门ID |
 | status | TINYINT | NOT NULL DEFAULT 1 | 状态：0-禁用，1-正常 |
+| last_login_ip | VARCHAR(50) | | 最后登录IP |
 | last_login_time | DATETIME | | 最后登录时间 |
+| login_fail_count | INT | NOT NULL DEFAULT 0 | 登录失败次数 |
+| lock_until | DATETIME | | 锁定到期时间 |
 | create_time | DATETIME | NOT NULL | 创建时间 |
 | update_time | DATETIME | | 更新时间 |
 | create_by | BIGINT | | 创建人 |
 | update_by | BIGINT | | 更新人 |
 | deleted | TINYINT | NOT NULL DEFAULT 0 | 逻辑删除 |
+| version | INT | DEFAULT 0 | 版本号 |
 
 **索引**:
 - idx_phone (phone)
 - idx_enterprise_id (enterprise_id)
 
-#### 3.1.2 企业表 (ps_enterprise)
+#### 3.1.2 企业表 (sys_enterprise)
 
 | 字段名 | 类型 | 约束 | 说明 |
 |--------|------|------|------|
@@ -108,7 +115,7 @@
 | update_time | DATETIME | | 更新时间 |
 | deleted | TINYINT | NOT NULL DEFAULT 0 | 逻辑删除 |
 
-#### 3.1.3 角色表 (ps_role)
+#### 3.1.3 角色表 (sys_role)
 
 | 字段名 | 类型 | 约束 | 说明 |
 |--------|------|------|------|
@@ -120,7 +127,7 @@
 | create_time | DATETIME | NOT NULL | 创建时间 |
 | update_time | DATETIME | | 更新时间 |
 
-#### 3.1.4 用户角色关联表 (ps_user_role)
+#### 3.1.4 用户角色关联表 (sys_user_role)
 
 | 字段名 | 类型 | 约束 | 说明 |
 |--------|------|------|------|
@@ -133,7 +140,7 @@
 - idx_user_id (user_id)
 - idx_role_id (role_id)
 
-#### 3.1.5 权限表 (ps_permission)
+#### 3.1.5 权限表 (sys_permission)
 
 | 字段名 | 类型 | 约束 | 说明 |
 |--------|------|------|------|
@@ -145,7 +152,7 @@
 | module | VARCHAR(50) | | 所属模块 |
 | create_time | DATETIME | NOT NULL | 创建时间 |
 
-#### 3.1.6 角色权限关联表 (ps_role_permission)
+#### 3.1.6 角色权限关联表 (sys_role_permission)
 
 | 字段名 | 类型 | 约束 | 说明 |
 |--------|------|------|------|
@@ -154,7 +161,7 @@
 | permission_id | BIGINT | NOT NULL | 权限ID |
 | create_time | DATETIME | NOT NULL | 创建时间 |
 
-#### 3.1.7 用户分组表 (ps_user_group)
+#### 3.1.7 用户分组表 (sys_user_group)
 
 | 字段名 | 类型 | 约束 | 说明 |
 |--------|------|------|------|
@@ -167,7 +174,7 @@
 | create_time | DATETIME | NOT NULL | 创建时间 |
 | update_time | DATETIME | | 更新时间 |
 
-#### 3.1.8 用户分组关联表 (ps_user_group_member)
+#### 3.1.8 用户分组关联表 (sys_user_group_member)
 
 | 字段名 | 类型 | 约束 | 说明 |
 |--------|------|------|------|
@@ -178,7 +185,25 @@
 
 ### 3.2 量表模块
 
-#### 3.2.1 量表表 (ps_scale)
+#### 3.2.1 量表分类表 (ps_scale_category)
+
+| 字段名 | 类型 | 约束 | 说明 |
+|--------|------|------|------|
+| id | BIGINT | PK | 分类ID |
+| category_name | VARCHAR(100) | NOT NULL | 分类名称 |
+| parent_id | BIGINT | NOT NULL DEFAULT 0 | 父分类ID（0=一级分类） |
+| sort_order | INT | NOT NULL DEFAULT 0 | 排序 |
+| remark | VARCHAR(500) | | 备注 |
+| status | TINYINT | NOT NULL DEFAULT 1 | 状态：0-禁用，1-启用 |
+| create_time | DATETIME | NOT NULL | 创建时间 |
+| update_time | DATETIME | | 更新时间 |
+| deleted | TINYINT | NOT NULL DEFAULT 0 | 逻辑删除 |
+
+**索引**:
+- idx_parent_id (parent_id)
+- idx_status (status)
+
+#### 3.2.2 量表表 (ps_scale)
 
 | 字段名 | 类型 | 约束 | 说明 |
 |--------|------|------|------|
@@ -186,29 +211,39 @@
 | scale_code | VARCHAR(32) | UNIQUE, NOT NULL | 量表编码 |
 | scale_name | VARCHAR(200) | NOT NULL | 量表名称 |
 | scale_name_en | VARCHAR(200) | | 英文名 |
-| category | VARCHAR(50) | | 分类 |
+| category_id | BIGINT | | 分类ID |
 | target_audience | VARCHAR(200) | | 适用人群 |
 | description | TEXT | | 描述 |
 | instruction | TEXT | | 指导语 |
+| cover | VARCHAR(500) | | 封面图URL |
 | duration | INT | | 预计时长（分钟） |
 | question_count | INT | | 题目数量 |
 | dimension_count | INT | | 维度数量 |
-| source_type | TINYINT | NOT NULL | 来源：1-内置，2-第三方，3-自定义 |
+| source_type | TINYINT | NOT NULL DEFAULT 1 | 来源：1-内置，2-第三方，3-自定义 |
 | third_party_id | VARCHAR(100) | | 第三方量表ID |
 | platform_id | BIGINT | | 第三方平台ID |
 | price | DECIMAL(10,2) | | 价格 |
+| age_range_min | INT | | 年龄范围最小值 |
+| age_range_max | INT | | 年龄范围最大值 |
+| applicable_gender | TINYINT | NOT NULL DEFAULT 0 | 适用性别：1-男，2-女，3-通用 |
+| attention | TEXT | | 注意事项 |
+| is_free | TINYINT | NOT NULL DEFAULT 0 | 是否免费：0-收费，1-免费 |
+| view_count | INT | NOT NULL DEFAULT 0 | 浏览次数 |
+| use_count | INT | NOT NULL DEFAULT 0 | 使用次数 |
+| publish_time | DATETIME | | 发布时间 |
 | status | TINYINT | NOT NULL DEFAULT 0 | 状态：0-草稿，1-已发布，2-已下架 |
 | create_time | DATETIME | NOT NULL | 创建时间 |
 | update_time | DATETIME | | 更新时间 |
 | create_by | BIGINT | | 创建人 |
 | update_by | BIGINT | | 更新人 |
 | deleted | TINYINT | NOT NULL DEFAULT 0 | 逻辑删除 |
+| version | INT | DEFAULT 0 | 版本号 |
 
 **索引**:
-- idx_category (category)
+- idx_category_id (category_id)
 - idx_source_type (source_type)
 
-#### 3.2.2 量表维度表 (ps_scale_dimension)
+#### 3.2.3 量表维度表 (ps_scale_dimension)
 
 | 字段名 | 类型 | 约束 | 说明 |
 |--------|------|------|------|
@@ -222,7 +257,7 @@
 **索引**:
 - idx_scale_id (scale_id)
 
-#### 3.2.3 量表因子表 (ps_scale_factor)
+#### 3.2.4 量表因子表 (ps_scale_factor)
 
 | 字段名 | 类型 | 约束 | 说明 |
 |--------|------|------|------|
@@ -235,7 +270,7 @@
 | sort_order | INT | NOT NULL DEFAULT 0 | 排序 |
 | create_time | DATETIME | NOT NULL | 创建时间 |
 
-#### 3.2.4 题目表 (ps_question)
+#### 3.2.5 题目表 (ps_question)
 
 | 字段名 | 类型 | 约束 | 说明 |
 |--------|------|------|------|
@@ -256,7 +291,7 @@
 **索引**:
 - idx_scale_id (scale_id)
 
-#### 3.2.5 选项表 (ps_question_option)
+#### 3.2.6 选项表 (ps_question_option)
 
 | 字段名 | 类型 | 约束 | 说明 |
 |--------|------|------|------|
@@ -271,7 +306,7 @@
 **索引**:
 - idx_question_id (question_id)
 
-#### 3.2.6 测评任务表 (ps_assessment_task)
+#### 3.2.7 测评任务表 (ps_assessment_task)
 
 | 字段名 | 类型 | 约束 | 说明 |
 |--------|------|------|------|
@@ -295,7 +330,7 @@
 - idx_scale_id (scale_id)
 - idx_status (status)
 
-#### 3.2.7 答题记录表 (ps_answer_record)
+#### 3.2.8 答题记录表 (ps_answer_record)
 
 | 字段名 | 类型 | 约束 | 说明 |
 |--------|------|------|------|
@@ -371,7 +406,7 @@
 | refund_time | DATETIME | | 退款时间 |
 | create_time | DATETIME | NOT NULL | 申请时间 |
 
-#### 3.3.4 用户配额表 (ps_user_quota)
+#### 3.3.4 用户配额表 (sys_user_quota)
 
 | 字段名 | 类型 | 约束 | 说明 |
 |--------|------|------|------|
@@ -387,8 +422,9 @@
 **索引**:
 - idx_user_id (user_id)
 - idx_scale_id (scale_id)
+- UNIQUE KEY uk_user_scale (user_id, scale_id)
 
-#### 3.3.5 企业配额表 (ps_enterprise_quota)
+#### 3.3.5 企业配额表 (sys_enterprise_quota)
 
 | 字段名 | 类型 | 约束 | 说明 |
 |--------|------|------|------|
@@ -400,6 +436,11 @@
 | expire_time | DATETIME | | 过期时间 |
 | create_time | DATETIME | NOT NULL | 创建时间 |
 | update_time | DATETIME | | 更新时间 |
+
+**索引**:
+- idx_enterprise_id (enterprise_id)
+- idx_scale_id (scale_id)
+- UNIQUE KEY uk_enterprise_scale (enterprise_id, scale_id)
 
 ### 3.4 报告模块
 
@@ -530,18 +571,18 @@
 
 ```
 ┌──────────┐     ┌──────────┐     ┌──────────┐
-│  ps_user │────▶│ps_enterprise│  │  ps_role │
+│  sys_user │────▶│sys_enterprise│  │  sys_role │
 └──────────┘     └──────────┘     └──────────┘
       │                                      │
       ▼                                      ▼
 ┌──────────┐     ┌──────────┐     ┌──────────┐
-│ps_user   │     │ps_user   │     │ps_role   │
+│sys_user   │     │sys_user   │     │sys_role   │
 │ _role    │     │ _group   │     │_permission│
 └──────────┘     └──────────┘     └──────────┘
                         │
                         ▼
                  ┌──────────┐
-                 │ps_user   │
+                 │sys_user   │
                  │_group    │
                  │ _member  │
                  └──────────┘
@@ -564,7 +605,7 @@
       │
       ▼
 ┌──────────┐     ┌──────────┐
-│ps_user   │     │ps_enterprise│
+│sys_user   │     │sys_enterprise│
 │ _quota   │     │  _quota   │
 └──────────┘     └──────────┘
 
@@ -582,6 +623,6 @@
 
 ---
 
-*文档版本: 1.1*
-*最后更新: 2026-03-11*
+*文档版本: 1.2*
+*最后更新: 2026-03-17*
 *作者: Ryan*

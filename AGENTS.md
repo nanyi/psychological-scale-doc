@@ -52,7 +52,11 @@ Psychological Scale 是一套功能全面、专业可靠、开箱即用的心理
 |------|------|------|
 | 后端框架 | Spring Boot | 3.2.2 |
 | Java | Java | 21 |
-| 微服务治理 | Spring Cloud | 2023.0.0 |
+| 微服务治理 | Spring Cloud Alibaba | 2023.0.1.0 |
+| 服务配置 | Nacos | 2.2.3 |
+| 服务发现 | Nacos | 2.2.3 |
+| 限流熔断 | Sentinel | 1.8.8 |
+| 分布式事务 | Seata | 1.7.1 |
 | ORM | MyBatis-Plus | 3.5.5 |
 | 前端框架 | Vue | 3.4 |
 | UI 组件 | ElementUI | 2.5 |

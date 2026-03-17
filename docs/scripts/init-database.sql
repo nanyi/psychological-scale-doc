@@ -18,7 +18,7 @@ USE psychological_scale;
 -- ============================================================
 
 -- 用户表
-CREATE TABLE IF NOT EXISTS ps_user (
+CREATE TABLE IF NOT EXISTS sys_user (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '用户ID',
     username VARCHAR(100) NOT NULL UNIQUE COMMENT '用户名',
     password VARCHAR(200) NOT NULL COMMENT '密码(BCrypt加密)',
@@ -27,20 +27,27 @@ CREATE TABLE IF NOT EXISTS ps_user (
     phone VARCHAR(20) COMMENT '手机号',
     email VARCHAR(100) COMMENT '邮箱',
     user_type TINYINT NOT NULL DEFAULT 1 COMMENT '用户类型:1-个人,2-企业',
+    gender TINYINT NOT NULL DEFAULT 0 COMMENT '性别:0-未知,1-男,2-女',
+    birthday DATE COMMENT '生日',
     enterprise_id BIGINT COMMENT '企业ID',
+    department_id BIGINT COMMENT '部门ID',
     status TINYINT NOT NULL DEFAULT 1 COMMENT '状态:0-禁用,1-正常',
+    last_login_ip VARCHAR(50) COMMENT '最后登录IP',
     last_login_time DATETIME COMMENT '最后登录时间',
+    login_fail_count INT NOT NULL DEFAULT 0 COMMENT '登录失败次数',
+    lock_until DATETIME COMMENT '锁定到期时间',
     create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     update_time DATETIME COMMENT '更新时间',
     create_by BIGINT COMMENT '创建人',
     update_by BIGINT COMMENT '更新人',
     deleted TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除:0-正常,1-删除',
+    version INT DEFAULT 0 COMMENT '版本号',
     INDEX idx_phone (phone),
     INDEX idx_enterprise_id (enterprise_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表';
 
 -- 企业表
-CREATE TABLE IF NOT EXISTS ps_enterprise (
+CREATE TABLE IF NOT EXISTS sys_enterprise (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '企业ID',
     enterprise_name VARCHAR(200) NOT NULL COMMENT '企业名称',
     credit_code VARCHAR(50) UNIQUE COMMENT '统一社会信用代码',
@@ -55,7 +62,7 @@ CREATE TABLE IF NOT EXISTS ps_enterprise (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='企业表';
 
 -- 角色表
-CREATE TABLE IF NOT EXISTS ps_role (
+CREATE TABLE IF NOT EXISTS sys_role (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '角色ID',
     role_name VARCHAR(100) NOT NULL COMMENT '角色名称',
     role_code VARCHAR(50) NOT NULL UNIQUE COMMENT '角色编码',
@@ -66,7 +73,7 @@ CREATE TABLE IF NOT EXISTS ps_role (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色表';
 
 -- 用户角色关联表
-CREATE TABLE IF NOT EXISTS ps_user_role (
+CREATE TABLE IF NOT EXISTS sys_user_role (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT 'ID',
     user_id BIGINT NOT NULL COMMENT '用户ID',
     role_id BIGINT NOT NULL COMMENT '角色ID',
@@ -76,7 +83,7 @@ CREATE TABLE IF NOT EXISTS ps_user_role (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户角色关联表';
 
 -- 权限表
-CREATE TABLE IF NOT EXISTS ps_permission (
+CREATE TABLE IF NOT EXISTS sys_permission (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '权限ID',
     permission_name VARCHAR(100) NOT NULL COMMENT '权限名称',
     permission_code VARCHAR(100) NOT NULL UNIQUE COMMENT '权限编码',
@@ -87,7 +94,7 @@ CREATE TABLE IF NOT EXISTS ps_permission (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='权限表';
 
 -- 角色权限关联表
-CREATE TABLE IF NOT EXISTS ps_role_permission (
+CREATE TABLE IF NOT EXISTS sys_role_permission (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT 'ID',
     role_id BIGINT NOT NULL COMMENT '角色ID',
     permission_id BIGINT NOT NULL COMMENT '权限ID',
@@ -97,7 +104,7 @@ CREATE TABLE IF NOT EXISTS ps_role_permission (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色权限关联表';
 
 -- 用户分组表
-CREATE TABLE IF NOT EXISTS ps_user_group (
+CREATE TABLE IF NOT EXISTS sys_user_group (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '分组ID',
     group_name VARCHAR(100) NOT NULL COMMENT '分组名称',
     group_type TINYINT NOT NULL COMMENT '类型:1-学生组,2-员工组,3-自定义',
@@ -111,7 +118,7 @@ CREATE TABLE IF NOT EXISTS ps_user_group (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户分组表';
 
 -- 用户分组关联表
-CREATE TABLE IF NOT EXISTS ps_user_group_member (
+CREATE TABLE IF NOT EXISTS sys_user_group_member (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT 'ID',
     group_id BIGINT NOT NULL COMMENT '分组ID',
     user_id BIGINT NOT NULL COMMENT '用户ID',
@@ -124,16 +131,32 @@ CREATE TABLE IF NOT EXISTS ps_user_group_member (
 -- 2. 量表模块表
 -- ============================================================
 
+-- 量表分类表
+CREATE TABLE IF NOT EXISTS ps_scale_category (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '分类ID',
+    category_name VARCHAR(100) NOT NULL COMMENT '分类名称',
+    parent_id BIGINT NOT NULL DEFAULT 0 COMMENT '父分类ID（0=一级分类）',
+    sort_order INT NOT NULL DEFAULT 0 COMMENT '排序',
+    remark VARCHAR(500) COMMENT '备注',
+    status TINYINT NOT NULL DEFAULT 1 COMMENT '状态:0-禁用,1-启用',
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time DATETIME COMMENT '更新时间',
+    deleted TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除:0-正常,1-删除',
+    INDEX idx_parent_id (parent_id),
+    INDEX idx_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='量表分类表';
+
 -- 量表表
 CREATE TABLE IF NOT EXISTS ps_scale (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '量表ID',
     scale_code VARCHAR(32) NOT NULL UNIQUE COMMENT '量表编码',
     scale_name VARCHAR(200) NOT NULL COMMENT '量表名称',
     scale_name_en VARCHAR(200) COMMENT '英文名',
-    category VARCHAR(50) COMMENT '分类',
+    category_id BIGINT COMMENT '分类ID',
     target_audience VARCHAR(200) COMMENT '适用人群',
     description TEXT COMMENT '描述',
     instruction TEXT COMMENT '指导语',
+    cover VARCHAR(500) COMMENT '封面图URL',
     duration INT COMMENT '预计时长(分钟)',
     question_count INT COMMENT '题目数量',
     dimension_count INT COMMENT '维度数量',
@@ -141,13 +164,22 @@ CREATE TABLE IF NOT EXISTS ps_scale (
     third_party_id VARCHAR(100) COMMENT '第三方量表ID',
     platform_id BIGINT COMMENT '第三方平台ID',
     price DECIMAL(10,2) COMMENT '价格',
+    age_range_min INT COMMENT '年龄范围最小值',
+    age_range_max INT COMMENT '年龄范围最大值',
+    applicable_gender TINYINT NOT NULL DEFAULT 0 COMMENT '适用性别:1-男,2-女,3-通用',
+    attention TEXT COMMENT '注意事项',
+    is_free TINYINT NOT NULL DEFAULT 0 COMMENT '是否免费:0-收费,1-免费',
+    view_count INT NOT NULL DEFAULT 0 COMMENT '浏览次数',
+    use_count INT NOT NULL DEFAULT 0 COMMENT '使用次数',
+    publish_time DATETIME COMMENT '发布时间',
     status TINYINT NOT NULL DEFAULT 0 COMMENT '状态:0-草稿,1-已发布,2-已下架',
     create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     update_time DATETIME COMMENT '更新时间',
     create_by BIGINT COMMENT '创建人',
     update_by BIGINT COMMENT '更新人',
     deleted TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除:0-正常,1-删除',
-    INDEX idx_category (category),
+    version INT DEFAULT 0 COMMENT '版本号',
+    INDEX idx_category_id (category_id),
     INDEX idx_source_type (source_type)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='量表表';
 
@@ -297,7 +329,7 @@ CREATE TABLE IF NOT EXISTS ps_refund_record (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='退款记录表';
 
 -- 用户配额表
-CREATE TABLE IF NOT EXISTS ps_user_quota (
+CREATE TABLE IF NOT EXISTS sys_user_quota (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '配额ID',
     user_id BIGINT NOT NULL COMMENT '用户ID',
     scale_id BIGINT NOT NULL COMMENT '量表ID',
@@ -312,7 +344,7 @@ CREATE TABLE IF NOT EXISTS ps_user_quota (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户配额表';
 
 -- 企业配额表
-CREATE TABLE IF NOT EXISTS ps_enterprise_quota (
+CREATE TABLE IF NOT EXISTS sys_enterprise_quota (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '配额ID',
     enterprise_id BIGINT NOT NULL COMMENT '企业ID',
     scale_id BIGINT NOT NULL COMMENT '量表ID',
@@ -454,15 +486,31 @@ CREATE TABLE IF NOT EXISTS ps_statistics (
 -- 7. 初始化数据
 -- ============================================================
 
+-- 初始化量表分类数据
+INSERT INTO ps_scale_category (category_name, parent_id, sort_order, status) VALUES
+('人格测评', 0, 1, 1),
+('心理健康', 0, 2, 1),
+('职业测评', 0, 3, 1),
+('智力测评', 0, 4, 1),
+('家庭测评', 0, 5, 1),
+('教育测评', 0, 6, 1),
+('临床测评', 0, 7, 1);
+
+-- 初始化二级分类
+INSERT INTO ps_scale_category (category_name, parent_id, sort_order, status) VALUES
+('抑郁', 2, 1, 1),
+('焦虑', 2, 2, 1),
+('情绪管理', 2, 3, 1);
+
 -- 初始化角色数据
-INSERT INTO ps_role (role_name, role_code, description, status) VALUES
+INSERT INTO sys_role (role_name, role_code, description, status) VALUES
 ('超级管理员', 'SUPER_ADMIN', '拥有系统所有权限', 1),
 ('企业管理员', 'ENTERPRISE_ADMIN', '企业管理权限', 1),
 ('测评师', 'ASSESSOR', '测评管理权限', 1),
 ('普通用户', 'USER', '普通用户权限', 1);
 
 -- 初始化权限数据
-INSERT INTO ps_permission (permission_name, permission_code, permission_type, parent_id, module) VALUES
+INSERT INTO sys_permission (permission_name, permission_code, permission_type, parent_id, module) VALUES
 -- 用户管理模块
 ('用户管理', 'user:manage', 1, NULL, 'MOD-001'),
 ('用户列表', 'user:list', 1, 1, 'MOD-001'),
@@ -488,23 +536,23 @@ INSERT INTO ps_permission (permission_name, permission_code, permission_type, pa
 ('报告导出', 'report:export', 1, 17, 'MOD-006');
 
 -- 为超级管理员角色分配所有权限
-INSERT INTO ps_role_permission (role_id, permission_id)
-SELECT 1, id FROM ps_permission;
+INSERT INTO sys_role_permission (role_id, permission_id)
+SELECT 1, id FROM sys_permission;
 
 -- 初始化演示用户 (密码: 123456, BCrypt加密)
-INSERT INTO ps_user (username, password, nickname, phone, email, user_type, status) VALUES
+INSERT INTO sys_user (username, password, nickname, phone, email, user_type, status) VALUES
 ('admin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', '系统管理员', '13800138000', 'admin@example.com', 1, 1);
 
 -- 关联管理员角色
-INSERT INTO ps_user_role (user_id, role_id) VALUES (1, 1);
+INSERT INTO sys_user_role (user_id, role_id) VALUES (1, 1);
 
 -- 初始化经典心理量表数据
-INSERT INTO ps_scale (scale_code, scale_name, scale_name_en, category, target_audience, description, instruction, duration, question_count, dimension_count, source_type, price, status) VALUES
-('SCL90', '症状自评量表', 'SCL-90', '心理健康', '成人', '包含90个项目，分为10个因子，主要用于评估个体的心理健康状况。', '请根据您最近一周的实际情况，对以下每一条陈述进行评估。', 30, 90, 10, 1, 0.00, 1),
-('SAS', '焦虑自评量表', 'Zung Self-Rating Anxiety Scale', '情绪测评', '成人', '包含20个项目，用于评估焦虑状态的轻重程度。', '请根据您最近一周的实际情况，选择最符合您的选项。', 10, 20, 1, 1, 0.00, 1),
-('SDS', '抑郁自评量表', 'Zung Self-Rating Depression Scale', '情绪测评', '成人', '包含20个项目，用于评估抑郁状态的轻重程度。', '请根据您最近一周的实际情况，选择最符合您的选项。', 10, 20, 1, 1, 0.00, 1),
-('PSQI', '匹兹堡睡眠质量指数', 'Pittsburgh Sleep Quality Index', '睡眠测评', '成人', '包含18个项目，用于评估睡眠质量。', '请根据您最近一个月的睡眠情况进行选择。', 15, 18, 7, 1, 0.00, 1),
-('UCLA', 'UCLA孤独量表', 'UCLA Loneliness Scale', '人格测评', '成人', '包含20个项目，用于评估孤独感程度。', '请根据您的实际感受，选择最符合的选项。', 10, 20, 1, 1, 0.00, 1);
+INSERT INTO ps_scale (scale_code, scale_name, scale_name_en, category_id, target_audience, description, instruction, duration, question_count, dimension_count, source_type, price, status) VALUES
+('SCL90', '症状自评量表', 'SCL-90', 2, '成人', '包含90个项目，分为10个因子，主要用于评估个体的心理健康状况。', '请根据您最近一周的实际情况，对以下每一条陈述进行评估。', 30, 90, 10, 1, 0.00, 1),
+('SAS', '焦虑自评量表', 'Zung Self-Rating Anxiety Scale', 2, '成人', '包含20个项目，用于评估焦虑状态的轻重程度。', '请根据您最近一周的实际情况，选择最符合您的选项。', 10, 20, 1, 1, 0.00, 1),
+('SDS', '抑郁自评量表', 'Zung Self-Rating Depression Scale', 2, '成人', '包含20个项目，用于评估抑郁状态的轻重程度。', '请根据您最近一周的实际情况，选择最符合您的选项。', 10, 20, 1, 1, 0.00, 1),
+('PSQI', '匹兹堡睡眠质量指数', 'Pittsburgh Sleep Quality Index', 2, '成人', '包含18个项目，用于评估睡眠质量。', '请根据您最近一个月的睡眠情况进行选择。', 15, 18, 7, 1, 0.00, 1),
+('UCLA', 'UCLA孤独量表', 'UCLA Loneliness Scale', 1, '成人', '包含20个项目，用于评估孤独感程度。', '请根据您的实际感受，选择最符合的选项。', 10, 20, 1, 1, 0.00, 1);
 
 -- 为SCL-90初始化维度数据
 INSERT INTO ps_scale_dimension (scale_id, dimension_code, dimension_name, sort_order) VALUES

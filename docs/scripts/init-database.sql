@@ -163,6 +163,7 @@ CREATE TABLE IF NOT EXISTS sys_user_group (
     description VARCHAR(500) COMMENT '描述',
     create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     update_time DATETIME COMMENT '更新时间',
+    deleted TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除：0-正常，1-删除',
     INDEX idx_enterprise_id (enterprise_id),
     INDEX idx_parent_id (parent_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户分组表';
@@ -640,6 +641,33 @@ INSERT INTO sys_user (username, password, nickname, phone, email, user_type, sta
 
 -- 关联管理员角色
 INSERT INTO sys_user_role (user_id, role_id) VALUES (1, 1);
+
+-- 初始化演示企业数据
+INSERT INTO sys_enterprise (enterprise_name, credit_code, contact_name, contact_phone, contact_email, status, expire_time) VALUES
+('深圳市心理健康科技有限公司', '91440300MA5DQXXX00', '张三', '13800138001', 'zhangsan@example.com', 1, '2027-12-31 23:59:59'),
+('广州心理咨询中心', '91440100MA5DQYYY11', '李四', '13800138002', 'lisi@example.com', 1, '2027-06-30 23:59:59'),
+('北京教育科技有限公司', '91110000MA5DQZZZ22', '王五', '13800138003', 'wangwu@example.com', 1, '2026-12-31 23:59:59');
+
+-- 初始化演示部门数据
+INSERT INTO sys_department (department_name, parent_id, enterprise_id, leader, phone, email, sort_order, status) VALUES
+-- 深圳市心理健康科技有限公司的部门
+('深圳市心理健康科技有限公司', 0, 1, '张三', '13800138001', 'zhangsan@example.com', 1, 1),
+('研发部', 4, 1, '研发经理', '13800138011', 'rd@example.com', 1, 1),
+('产品部', 4, 1, '产品经理', '13800138012', 'pm@example.com', 2, 1),
+('运营部', 4, 1, '运营经理', '13800138013', 'ops@example.com', 3, 1),
+('销售部', 4, 1, '销售经理', '13800138014', 'sales@example.com', 4, 1),
+('客户服务部', 4, 1, '客服经理', '13800138015', 'cs@example.com', 5, 1),
+('研发一组', 5, 1, '组长A', '13800138021', 'a@example.com', 1, 1),
+('研发二组', 5, 1, '组长B', '13800138022', 'b@example.com', 2, 1),
+-- 广州心理咨询中心的部门
+('广州心理咨询中心', 0, 2, '李四', '13800138002', 'lisi@example.com', 1, 1),
+('测评部', 14, 2, '测评主管', '13800138031', 'eval@example.com', 1, 1),
+('咨询部', 14, 2, '咨询主管', '13800138032', 'consult@example.com', 2, 1),
+('市场部', 14, 2, '市场主管', '13800138033', 'market@example.com', 3, 1),
+-- 北京教育科技有限公司的部门
+('北京教育科技有限公司', 0, 3, '王五', '13800138003', 'wangwu@example.com', 1, 1),
+('教学部', 23, 3, '教学主管', '13800138041', 'teach@example.com', 1, 1),
+('技术部', 23, 3, '技术主管', '13800138042', 'tech@example.com', 2, 1);
 
 -- 初始化经典心理量表数据
 INSERT INTO ps_scale (scale_code, scale_name, scale_name_en, category_id, target_audience, description, instruction, duration, question_count, dimension_count, source_type, price, status) VALUES

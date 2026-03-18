@@ -191,12 +191,12 @@ npm run test -- --grep "测试名称"
 
 1. **路径命名风格**：
    - 统一使用**小写蛇形式单词组合**（lower snake words），单词之间采用连字符 `-` 分隔，例如：
-     - `/api/orderData`、`/api/order-data` 统一收敛为：`/api/order-data`，全项目保持一致；
-     - 推荐对资源名使用小写+连字符（RESTful 风格），如：`/api/order-refund-records`、`/api/order-data`。
+     - `/api/orderData`、`/api/order-data` 统一收敛为：`/api/order`，全项目保持一致；
+     - 推荐对资源名使用小写+连字符（RESTful 风格），如：`/api/exam-record/list`。
 2. **版本化与前缀**：
    - 所有业务接口必须以 `/api/` 为统一前缀，后续如需版本化可扩展为 `/api/v1/...`。
 3. **避免混用风格**：
-   - 禁止在同一项目中同时存在 `/api/stockInfo` 与 `/api/stock-info` 这种混用情况；
+   - 禁止在同一项目中同时存在 `/api/examRecord` 与 `/api/exam-record` 这种混用情况；
    - 新增接口时必须对齐已有约定的命名风格，若需调整旧路径，须保留一段时间的兼容映射。
 
 #### 接口路径参数位置规范（强制）

@@ -317,7 +317,7 @@ CREATE TABLE IF NOT EXISTS ps_order_item (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='订单项表';
 
 -- 退款记录表
-CREATE TABLE IF NOT EXISTS ps_refund_record (
+CREATE TABLE IF NOT EXISTS ps_order_refund (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '退款ID',
     refund_no VARCHAR(32) NOT NULL UNIQUE COMMENT '退款编号',
     order_no VARCHAR(32) NOT NULL COMMENT '原订单编号',
@@ -329,7 +329,7 @@ CREATE TABLE IF NOT EXISTS ps_refund_record (
     refund_time DATETIME COMMENT '退款时间',
     create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '申请时间',
     INDEX idx_order_no (order_no)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='退款记录表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='订单退款记录表';
 
 -- 用户配额表
 CREATE TABLE IF NOT EXISTS sys_user_quota (
@@ -385,6 +385,7 @@ CREATE TABLE IF NOT EXISTS ps_report (
     generate_time DATETIME COMMENT '生成时间',
     create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     update_time DATETIME COMMENT '更新时间',
+    deleted TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除:0-正常,1-删除',
     INDEX idx_user_id (user_id),
     INDEX idx_task_id (task_id),
     INDEX idx_scale_id (scale_id)

@@ -198,7 +198,6 @@ public interface ScaleCategoryMapper extends BaseMapper<ScaleCategory> {
 ```java
 package com.iotsic.ps.scale.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.iotsic.ps.scale.entity.ScaleCategory;
 
 import java.util.List;
@@ -209,7 +208,7 @@ import java.util.List;
  * @author Ryan
  * @since 2026-03-17
  */
-public interface ScaleCategoryService extends IService<ScaleCategory> {
+public interface ScaleCategoryService {
 
     /**
      * 获取分类树形列表
@@ -251,7 +250,7 @@ import java.util.stream.Collectors;
  * @since 2026-03-17
  */
 @Service
-public class ScaleCategoryServiceImpl extends ServiceImpl<ScaleCategoryMapper, ScaleCategory> 
+public class ScaleCategoryServiceImpl 
     implements ScaleCategoryService {
 
     @Override

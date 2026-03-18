@@ -271,42 +271,34 @@ CREATE TABLE IF NOT EXISTS ps_question_option (
 CREATE TABLE IF NOT EXISTS ps_assessment_task (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '任务ID',
     task_no VARCHAR(32) NOT NULL UNIQUE COMMENT '任务编号',
-    user_id BIGINT NOT NULL COMMENT '用户ID',
+    user_id BIGINT NOT NULL COMMENT '被测评用户ID',
     scale_id BIGINT NOT NULL COMMENT '量表ID',
-    source_type TINYINT NOT NULL COMMENT '来源:1-购买,2-企业分配,3-免费',
-    source_id BIGINT COMMENT '来源ID(订单ID/配额ID)',
-    status TINYINT NOT NULL DEFAULT 0 COMMENT '状态:0-待开始,1-进行中,2-已完成,3-已超时',
-    progress INT NOT NULL DEFAULT 0 COMMENT '进度',
+    enterprise_id BIGINT COMMENT '企业ID（企业安排时有值）',
+    assigner_id BIGINT COMMENT '安排人ID（企业安排时有值）',
+    task_type TINYINT NOT NULL COMMENT '任务类型：1-企业任务，2-个人任务',
+    source_type TINYINT NOT NULL COMMENT '来源类型：1-企业分配，2-个人购买，3-自行设定',
+    source_id BIGINT COMMENT '来源ID（订单ID/配额ID）',
+    status TINYINT NOT NULL DEFAULT 0 COMMENT '状态：0-待开始，1-进行中，2-已完成，3-已超时，4-已取消',
+    progress INT NOT NULL DEFAULT 0 COMMENT '进度（当前题目/总题目）',
     start_time DATETIME COMMENT '开始时间',
     finish_time DATETIME COMMENT '完成时间',
     expire_time DATETIME COMMENT '过期时间',
     create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     update_time DATETIME COMMENT '更新时间',
-    deleted TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除:0-正常,1-删除',
+    deleted TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除：0-正常，1-删除',
     INDEX idx_user_id (user_id),
+    INDEX idx_enterprise_id (enterprise_id),
     INDEX idx_scale_id (scale_id),
     INDEX idx_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='测评任务表';
 
--- 答题记录表
-CREATE TABLE IF NOT EXISTS ps_answer_record (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '记录ID',
-    task_id BIGINT NOT NULL COMMENT '任务ID',
-    question_id BIGINT NOT NULL COMMENT '题目ID',
-    answer_value VARCHAR(500) COMMENT '答案值',
-    answer_text TEXT COMMENT '答案文本',
-    score DECIMAL(10,2) COMMENT '得分',
-    answer_time INT COMMENT '答题用时(秒)',
-    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    update_time DATETIME COMMENT '更新时间',
-    INDEX idx_task_id (task_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='答题记录表';
-
 -- 测评记录表
 CREATE TABLE IF NOT EXISTS ps_exam_record (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '记录ID',
+    task_id BIGINT COMMENT '测评任务ID（关联测评任务）',
     user_id BIGINT NOT NULL COMMENT '用户ID',
     scale_id BIGINT NOT NULL COMMENT '量表ID',
+    enterprise_id BIGINT COMMENT '企业ID',
     record_no VARCHAR(50) NOT NULL UNIQUE COMMENT '记录编号',
     exam_status TINYINT NOT NULL DEFAULT 0 COMMENT '测评状态：0-待开始，1-进行中，2-已完成，3-已暂停，4-已取消',
     total_score INT COMMENT '总分',
@@ -320,7 +312,6 @@ CREATE TABLE IF NOT EXISTS ps_exam_record (
     ip_address VARCHAR(50) COMMENT 'IP地址',
     device_info VARCHAR(200) COMMENT '设备信息',
     source VARCHAR(50) COMMENT '来源：pc、小程序、h5',
-    enterprise_id BIGINT COMMENT '企业ID',
     dimension_scores TEXT COMMENT '维度得分JSON',
     create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     update_time DATETIME COMMENT '更新时间',
@@ -328,12 +319,29 @@ CREATE TABLE IF NOT EXISTS ps_exam_record (
     update_by BIGINT COMMENT '更新人',
     deleted TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除：0-正常，1-删除',
     version INT DEFAULT 0 COMMENT '版本号',
+    INDEX idx_task_id (task_id),
     INDEX idx_user_id (user_id),
     INDEX idx_scale_id (scale_id),
+    INDEX idx_enterprise_id (enterprise_id),
     INDEX idx_record_no (record_no),
     INDEX idx_exam_status (exam_status),
     INDEX idx_create_time (create_time)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='测评记录表';
+
+-- 答题记录表
+CREATE TABLE IF NOT EXISTS ps_answer_record (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '记录ID',
+    record_id BIGINT NOT NULL COMMENT '测评记录ID（关联测评记录）',
+    question_id BIGINT NOT NULL COMMENT '题目ID',
+    answer_value VARCHAR(500) COMMENT '答案值',
+    answer_text TEXT COMMENT '答案文本',
+    score DECIMAL(10,2) COMMENT '得分',
+    answer_time INT COMMENT '答题用时(秒)',
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time DATETIME COMMENT '更新时间',
+    INDEX idx_record_id (record_id),
+    INDEX idx_question_id (question_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='答题记录表';
 
 -- ============================================================
 -- 3. 订单模块表

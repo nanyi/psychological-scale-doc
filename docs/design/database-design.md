@@ -312,12 +312,15 @@
 |--------|------|------|------|
 | id | BIGINT | PK | 任务ID |
 | task_no | VARCHAR(32) | UNIQUE, NOT NULL | 任务编号 |
-| user_id | BIGINT | NOT NULL | 用户ID |
+| user_id | BIGINT | NOT NULL | 被测评用户ID |
 | scale_id | BIGINT | NOT NULL | 量表ID |
-| source_type | TINYINT | NOT NULL | 来源：1-购买，2-企业分配，3-免费 |
+| enterprise_id | BIGINT | | 企业ID（企业安排时有值） |
+| assigner_id | BIGINT | | 安排人ID（企业安排时有值） |
+| task_type | TINYINT | NOT NULL | 任务类型：1-企业任务，2-个人任务 |
+| source_type | TINYINT | NOT NULL | 来源类型：1-企业分配，2-个人购买，3-自行设定 |
 | source_id | BIGINT | | 来源ID（订单ID/配额ID） |
-| status | TINYINT | NOT NULL DEFAULT 0 | 状态：0-待开始，1-进行中，2-已完成，3-已超时 |
-| progress | INT | NOT NULL DEFAULT 0 | 进度 |
+| status | TINYINT | NOT NULL DEFAULT 0 | 状态：0-待开始，1-进行中，2-已完成，3-已超时，4-已取消 |
+| progress | INT | NOT NULL DEFAULT 0 | 进度（当前题目/总题目） |
 | start_time | DATETIME | | 开始时间 |
 | finish_time | DATETIME | | 完成时间 |
 | expire_time | DATETIME | | 过期时间 |
@@ -327,33 +330,19 @@
 
 **索引**:
 - idx_user_id (user_id)
+- idx_enterprise_id (enterprise_id)
 - idx_scale_id (scale_id)
 - idx_status (status)
-
-#### 3.2.8 答题记录表 (ps_answer_record)
-
-| 字段名 | 类型 | 约束 | 说明 |
-|--------|------|------|------|
-| id | BIGINT | PK | 记录ID |
-| task_id | BIGINT | NOT NULL | 任务ID |
-| question_id | BIGINT | NOT NULL | 题目ID |
-| answer_value | VARCHAR(500) | | 答案值 |
-| answer_text | TEXT | | 答案文本 |
-| score | DECIMAL(10,2) | | 得分 |
-| answer_time | INT | | 答题用时（秒） |
-| create_time | DATETIME | NOT NULL | 创建时间 |
-| update_time | DATETIME | | 更新时间 |
-
-**索引**:
-- idx_task_id (task_id)
 
 #### 3.2.8 测评记录表 (ps_exam_record)
 
 | 字段名 | 类型 | 约束 | 说明 |
 |--------|------|------|------|
 | id | BIGINT | PK | 记录ID |
+| task_id | BIGINT | | 测评任务ID（关联测评任务） |
 | user_id | BIGINT | NOT NULL | 用户ID |
 | scale_id | BIGINT | NOT NULL | 量表ID |
+| enterprise_id | BIGINT | | 企业ID |
 | record_no | VARCHAR(50) | UNIQUE, NOT NULL | 记录编号 |
 | exam_status | TINYINT | NOT NULL DEFAULT 0 | 测评状态：0-待开始，1-进行中，2-已完成，3-已暂停，4-已取消 |
 | total_score | INT | | 总分 |
@@ -367,7 +356,6 @@
 | ip_address | VARCHAR(50) | | IP地址 |
 | device_info | VARCHAR(200) | | 设备信息 |
 | source | VARCHAR(50) | | 来源：pc、小程序、h5 |
-| enterprise_id | BIGINT | | 企业ID |
 | dimension_scores | TEXT | | 维度得分JSON |
 | create_time | DATETIME | NOT NULL | 创建时间 |
 | update_time | DATETIME | | 更新时间 |
@@ -377,11 +365,31 @@
 | version | INT | DEFAULT 0 | 版本号 |
 
 **索引**:
+- idx_task_id (task_id)
 - idx_user_id (user_id)
 - idx_scale_id (scale_id)
+- idx_enterprise_id (enterprise_id)
 - idx_record_no (record_no)
 - idx_exam_status (exam_status)
 - idx_create_time (create_time)
+
+#### 3.2.9 答题记录表 (ps_answer_record)
+
+| 字段名 | 类型 | 约束 | 说明 |
+|--------|------|------|------|
+| id | BIGINT | PK | 记录ID |
+| record_id | BIGINT | NOT NULL | 测评记录ID（关联测评记录） |
+| question_id | BIGINT | NOT NULL | 题目ID |
+| answer_value | VARCHAR(500) | | 答案值 |
+| answer_text | TEXT | | 答案文本 |
+| score | DECIMAL(10,2) | | 得分 |
+| answer_time | INT | | 答题用时（秒） |
+| create_time | DATETIME | NOT NULL | 创建时间 |
+| update_time | DATETIME | | 更新时间 |
+
+**索引**:
+- idx_record_id (record_id)
+- idx_question_id (question_id)
 
 ### 3.3 订单模块
 

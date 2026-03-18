@@ -599,37 +599,37 @@ INSERT INTO ps_scale_category (category_name, parent_id, sort_order, status) VAL
 ('情绪管理', 2, 3, 1);
 
 -- 初始化角色数据
-INSERT INTO sys_role (role_name, role_code, description, status) VALUES
-('超级管理员', 'SUPER_ADMIN', '拥有系统所有权限', 1),
-('企业管理员', 'ENTERPRISE_ADMIN', '企业管理权限', 1),
-('测评师', 'ASSESSOR', '测评管理权限', 1),
-('普通用户', 'USER', '普通用户权限', 1);
+INSERT INTO sys_role (role_name, role_code, role_type, is_system, description, status) VALUES
+('超级管理员', 'SUPER_ADMIN', 1, 1, '拥有系统所有权限', 1),
+('企业管理员', 'ENTERPRISE_ADMIN', 2, 0, '企业管理权限', 1),
+('测评师', 'ASSESSOR', 2, 0, '测评管理权限', 1),
+('普通用户', 'USER', 2, 0, '普通用户权限', 1);
 
 -- 初始化权限数据
-INSERT INTO sys_permission (permission_name, permission_code, permission_type, parent_id, module) VALUES
+INSERT INTO sys_permission (permission_name, permission_code, permission_type, parent_id, module, sort_order) VALUES
 -- 用户管理模块
-('用户管理', 'user:manage', 1, NULL, 'MOD-001'),
-('用户列表', 'user:list', 1, 1, 'MOD-001'),
-('用户新增', 'user:add', 1, 1, 'MOD-001'),
-('用户编辑', 'user:edit', 1, 1, 'MOD-001'),
-('用户删除', 'user:delete', 1, 1, 'MOD-001'),
+('用户管理', 'user:manage', 1, NULL, 'MOD-001', 1),
+('用户列表', 'user:list', 2, 1, 'MOD-001', 1),
+('用户新增', 'user:add', 3, 1, 'MOD-001', 2),
+('用户编辑', 'user:edit', 3, 1, 'MOD-001', 3),
+('用户删除', 'user:delete', 3, 1, 'MOD-001', 4),
 -- 量表管理模块
-('量表管理', 'scale:manage', 1, NULL, 'MOD-002'),
-('量表列表', 'scale:list', 1, 6, 'MOD-002'),
-('量表新增', 'scale:add', 1, 6, 'MOD-002'),
-('量表编辑', 'scale:edit', 1, 6, 'MOD-002'),
-('量表删除', 'scale:delete', 1, 6, 'MOD-002'),
+('量表管理', 'scale:manage', 1, NULL, 'MOD-002', 2),
+('量表列表', 'scale:list', 2, 6, 'MOD-002', 1),
+('量表新增', 'scale:add', 3, 6, 'MOD-002', 2),
+('量表编辑', 'scale:edit', 3, 6, 'MOD-002', 3),
+('量表删除', 'scale:delete', 3, 6, 'MOD-002', 4),
 -- 订单管理模块
-('订单管理', 'order:manage', 1, NULL, 'MOD-003'),
-('订单列表', 'order:list', 1, 11, 'MOD-003'),
-('订单退款', 'order:refund', 1, 11, 'MOD-003'),
+('订单管理', 'order:manage', 1, NULL, 'MOD-003', 3),
+('订单列表', 'order:list', 2, 11, 'MOD-003', 1),
+('订单退款', 'order:refund', 3, 11, 'MOD-003', 2),
 -- 数据分析模块
-('数据分析', 'analysis:view', 1, NULL, 'MOD-005'),
-('数据导出', 'analysis:export', 1, 15, 'MOD-005'),
+('数据分析', 'analysis:view', 1, NULL, 'MOD-005', 4),
+('数据导出', 'analysis:export', 3, 15, 'MOD-005', 1),
 -- 报告管理模块
-('报告管理', 'report:manage', 1, NULL, 'MOD-006'),
-('报告查看', 'report:view', 1, 17, 'MOD-006'),
-('报告导出', 'report:export', 1, 17, 'MOD-006');
+('报告管理', 'report:manage', 1, NULL, 'MOD-006', 5),
+('报告查看', 'report:view', 3, 17, 'MOD-006', 1),
+('报告导出', 'report:export', 3, 17, 'MOD-006', 2);
 
 -- 为超级管理员角色分配所有权限
 INSERT INTO sys_role_permission (role_id, permission_id)

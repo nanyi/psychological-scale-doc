@@ -48,46 +48,51 @@ CREATE TABLE IF NOT EXISTS ps_scale_category (
 
 ### 3.1 模块结构
 
-在 `ps-scale` 服务中新增分类管理功能：
+分类实体在 `ps-core` 公共模块，分类管理功能在 `ps-scale` 服务中实现：
 
 ```
-ps-scale/
+ps-core/（实体模块）
+├── entity/
+    └── ScaleCategory.java               # 分类实体
+
+ps-scale/（量表服务）
 ├── controller/
 │   └── ScaleCategoryController.java    # 分类管理控制器
 ├── service/
 │   ├── ScaleCategoryService.java       # 分类服务接口
-│   └── ScaleCategoryServiceImpl.java   # 分类服务实现
+│   └── impl/ScaleCategoryServiceImpl.java # 分类服务实现
 ├── mapper/
 │   └── ScaleCategoryMapper.java        # 分类Mapper
-└── entity/
-    └── ScaleCategory.java               # 分类实体
+└── dto/
+    └── ScaleCategoryRequest.java        # 分类请求DTO
 ```
 
 ### 3.2 实体设计
 
-**ScaleCategory.java**
+**ScaleCategory.java** (`ps-core` 模块)
 
 | 字段 | 类型 | 说明 |
 |------|------|------|
 | id | Long | 分类ID |
 | categoryName | String | 分类名称 |
-| parentId | Long | 父分类ID |
+| parentId | Long | 父分类ID（0=一级分类） |
 | sortOrder | Integer | 排序 |
 | remark | String | 备注 |
-| status | Integer | 状态 |
+| status | Integer | 状态：0-禁用，1-启用 |
 | createTime | LocalDateTime | 创建时间 |
 | updateTime | LocalDateTime | 更新时间 |
 | deleted | Integer | 逻辑删除 |
+| children | List\<ScaleCategory\> | 子分类列表（非数据库字段） |
 
 ### 3.3 API 设计
 
-| 接口路径 | 方法 | 说明 | 请求体/参数 |
-|----------|------|------|-------------|
-| /api/scale-category/list | GET | 分类列表（树形） | - |
-| /api/scale-category/all | GET | 所有分类（下拉用） | - |
-| /api/scale-category/create | POST | 新增分类 | ScaleCategoryRequest |
-| /api/scale-category/update/{id} | PUT | 更新分类 | ScaleCategoryRequest |
-| /api/scale-category/delete/{id} | DELETE | 删除分类 | - |
+| 接口路径 | 方法 | 说明 |
+|----------|------|------|
+| /api/scale-category/list | GET | 分类列表（树形） |
+| /api/scale-category/all | GET | 所有分类（下拉用） |
+| /api/scale-category/create | POST | 新增分类 |
+| /api/scale-category/update/{id} | PUT | 更新分类 |
+| /api/scale-category/delete/{id} | DELETE | 删除分类（需无子分类） |
 
 **ScaleCategoryRequest.java**
 
@@ -103,7 +108,7 @@ ps-scale/
 
 | 字段 | 变更 |
 |------|------|
-| category | 删除（Integer） |
+| category | 删除（原 Integer 类型） |
 | categoryId | 新增（Long），关联 ps_scale_category.id |
 
 ---
@@ -119,14 +124,17 @@ ps-scale/
 ### 4.2 组件设计
 
 **ScaleCategoryList.vue**
-- 树形表格展示分类
-- 支持新增、编辑、删除
-- 状态启用/禁用
+- 树形表格展示分类（使用 el-table 的 row-key 和 tree-props）
+- 支持新增、编辑、删除分类
+- 支持添加子分类
+- 状态启用/禁用切换
 
 ### 4.3 API 对接
 
-| 接口 | 方法 | 说明 |
-|------|------|------|
+`src/api/scaleCategory.ts`
+
+| 接口函数 | 方法 | 说明 |
+|----------|------|------|
 | getCategoryTree | GET /api/scale-category/list | 获取分类树 |
 | getCategoryAll | GET /api/scale-category/all | 获取全部分类 |
 | createCategory | POST /api/scale-category/create | 新增分类 |
@@ -159,35 +167,28 @@ INSERT INTO ps_scale_category (category_name, parent_id, sort_order, status) VAL
 
 ---
 
-## 6. 版本兼容性
+## 6. 业务规则
 
-- 现有枚举 `ScaleCategoryEnum` 保留，作为预留
-- 迁移期间支持 category（枚举值）和 categoryId（分类ID）双字段
+### 6.1 删除校验
 
----
+- 删除分类时检查是否有子分类，如有子分类则拒绝删除
+- 删除分类时检查是否有量表关联该分类（预留）
 
-## 7. 实施计划
+### 6.2 树形结构
 
-1. 更新 init-database.sql 脚本
-2. 更新 database-design.md 文档
-3. 创建 ScaleCategory 实体
-4. 创建 ScaleCategoryMapper
-5. 创建 ScaleCategoryService 及实现
-6. 创建 ScaleCategoryController
-7. 调整 Scale 实体（移除 category，添加 categoryId）
-8. 调整 ScaleService 和 ScaleController
-9. 前端：创建分类管理页面
-10. 前端：调整量表列表展示
+- 使用 parentId = 0 标识一级分类
+- Service 层递归构建树形结构，返回包含 children 字段的树形数据
 
 ---
 
-## 8. 文档版本
+## 7. 文档版本
 
 | 版本 | 日期 | 作者 | 说明 |
 |------|------|------|------|
 | 1.0 | 2026-03-17 | Ryan | 初始版本 |
+| 1.1 | 2026-03-18 | Ryan | 修正模块结构，实体在ps-core模块 |
 
 ---
 
-*文档创建时间: 2026-03-17*
+*文档更新时间: 2026-03-18*
 *作者: Ryan*

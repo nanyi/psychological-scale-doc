@@ -147,7 +147,7 @@
 | id | BIGINT | PK | 权限ID |
 | permission_name | VARCHAR(100) | NOT NULL | 权限名称 |
 | permission_code | VARCHAR(100) | UNIQUE, NOT NULL | 权限编码 |
-| permission_type | TINYINT | NOT NULL | 类型：1-功能，2-数据 |
+| permission_type | TINYINT | NOT NULL | 类型：1-菜单目录,2-菜单,3-功能,4-数据 |
 | parent_id | BIGINT | | 父权限ID |
 | module | VARCHAR(50) | | 所属模块 |
 | create_time | DATETIME | NOT NULL | 创建时间 |
@@ -391,7 +391,7 @@
 **索引**:
 - idx_order_no (order_no)
 
-#### 3.3.3 订单退款记录表 (ps_order_refund)
+#### 3.3.3 退款记录表 (ps_refund)
 
 | 字段名 | 类型 | 约束 | 说明 |
 |--------|------|------|------|
@@ -600,7 +600,7 @@
 
 ┌──────────┐     ┌──────────┐     ┌──────────┐
 │ ps_order │────▶│ps_order  │     │ps_refund │
-│          │     │ _item    │     │ _record  │
+│          │     │ _item    │     │          │
 └──────────┘     └──────────┘     └──────────┘
       │
       ▼

@@ -66,10 +66,16 @@ CREATE TABLE IF NOT EXISTS sys_role (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '角色ID',
     role_name VARCHAR(100) NOT NULL COMMENT '角色名称',
     role_code VARCHAR(50) NOT NULL UNIQUE COMMENT '角色编码',
+    role_type TINYINT NOT NULL COMMENT '角色类型:1-系统角色,2-自定义角色',
     description VARCHAR(500) COMMENT '描述',
+    is_system TINYINT NOT NULL DEFAULT 0 COMMENT '是否系统角色:0-否,1-是',
     status TINYINT NOT NULL DEFAULT 1 COMMENT '状态:0-禁用,1-正常',
     create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    update_time DATETIME COMMENT '更新时间'
+    update_time DATETIME COMMENT '更新时间',
+    create_by BIGINT COMMENT '创建人',
+    update_by BIGINT COMMENT '更新人',
+    deleted TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除:0-正常,1-删除',
+    version INT DEFAULT 0 COMMENT '版本号'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色表';
 
 -- 用户角色关联表
@@ -78,6 +84,11 @@ CREATE TABLE IF NOT EXISTS sys_user_role (
     user_id BIGINT NOT NULL COMMENT '用户ID',
     role_id BIGINT NOT NULL COMMENT '角色ID',
     create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time DATETIME COMMENT '更新时间',
+    create_by BIGINT COMMENT '创建人',
+    update_by BIGINT COMMENT '更新人',
+    deleted TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除:0-正常,1-删除',
+    version INT DEFAULT 0 COMMENT '版本号',
     INDEX idx_user_id (user_id),
     INDEX idx_role_id (role_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户角色关联表';
@@ -87,10 +98,21 @@ CREATE TABLE IF NOT EXISTS sys_permission (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '权限ID',
     permission_name VARCHAR(100) NOT NULL COMMENT '权限名称',
     permission_code VARCHAR(100) NOT NULL UNIQUE COMMENT '权限编码',
-    permission_type TINYINT NOT NULL COMMENT '类型:1-功能,2-数据',
+    permission_type TINYINT NOT NULL COMMENT '类型:1-菜单目录,2-菜单,3-功能,4-数据',
+    permission_desc VARCHAR(500) COMMENT '权限描述',
+    resource VARCHAR(500) COMMENT '资源路径',
+    method VARCHAR(10) COMMENT '请求方式',
     parent_id BIGINT COMMENT '父权限ID',
+    sort_order INT NOT NULL DEFAULT 0 COMMENT '排序',
+    icon VARCHAR(50) COMMENT '图标',
+    path VARCHAR(500) COMMENT '路径',
     module VARCHAR(50) COMMENT '所属模块',
-    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time DATETIME COMMENT '更新时间',
+    create_by BIGINT COMMENT '创建人',
+    update_by BIGINT COMMENT '更新人',
+    deleted TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除:0-正常,1-删除',
+    version INT DEFAULT 0 COMMENT '版本号'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='权限表';
 
 -- 角色权限关联表
@@ -99,6 +121,11 @@ CREATE TABLE IF NOT EXISTS sys_role_permission (
     role_id BIGINT NOT NULL COMMENT '角色ID',
     permission_id BIGINT NOT NULL COMMENT '权限ID',
     create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time DATETIME COMMENT '更新时间',
+    create_by BIGINT COMMENT '创建人',
+    update_by BIGINT COMMENT '更新人',
+    deleted TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除:0-正常,1-删除',
+    version INT DEFAULT 0 COMMENT '版本号',
     INDEX idx_role_id (role_id),
     INDEX idx_permission_id (permission_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色权限关联表';
@@ -317,7 +344,7 @@ CREATE TABLE IF NOT EXISTS ps_order_item (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='订单项表';
 
 -- 退款记录表
-CREATE TABLE IF NOT EXISTS ps_order_refund (
+CREATE TABLE IF NOT EXISTS ps_refund (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '退款ID',
     refund_no VARCHAR(32) NOT NULL UNIQUE COMMENT '退款编号',
     order_no VARCHAR(32) NOT NULL COMMENT '原订单编号',
@@ -329,7 +356,7 @@ CREATE TABLE IF NOT EXISTS ps_order_refund (
     refund_time DATETIME COMMENT '退款时间',
     create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '申请时间',
     INDEX idx_order_no (order_no)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='订单退款记录表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='退款记录表';
 
 -- 用户配额表
 CREATE TABLE IF NOT EXISTS sys_user_quota (

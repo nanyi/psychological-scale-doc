@@ -161,7 +161,33 @@
 | permission_id | BIGINT | NOT NULL | 权限ID |
 | create_time | DATETIME | NOT NULL | 创建时间 |
 
-#### 3.1.7 用户分组表 (sys_user_group)
+#### 3.1.7 部门表 (sys_department)
+
+| 字段名 | 类型 | 约束 | 说明 |
+|--------|------|------|------|
+| id | BIGINT | PK | 部门ID |
+| department_name | VARCHAR(100) | NOT NULL | 部门名称 |
+| parent_id | BIGINT | NOT NULL DEFAULT 0 | 父部门ID（0=一级部门） |
+| enterprise_id | BIGINT | | 企业ID |
+| leader | VARCHAR(50) | | 负责人 |
+| phone | VARCHAR(20) | | 联系电话 |
+| email | VARCHAR(100) | | 邮箱 |
+| sort_order | INT | NOT NULL DEFAULT 0 | 排序 |
+| status | TINYINT | NOT NULL DEFAULT 1 | 状态：0-禁用，1-启用 |
+| description | VARCHAR(500) | | 描述 |
+| create_time | DATETIME | NOT NULL | 创建时间 |
+| update_time | DATETIME | | 更新时间 |
+| create_by | BIGINT | | 创建人 |
+| update_by | BIGINT | | 更新人 |
+| deleted | TINYINT | NOT NULL DEFAULT 0 | 逻辑删除：0-正常，1-删除 |
+| version | INT | DEFAULT 0 | 版本号 |
+
+**索引**:
+- idx_parent_id (parent_id)
+- idx_enterprise_id (enterprise_id)
+- idx_status (status)
+
+#### 3.1.8 用户分组表 (sys_user_group)
 
 | 字段名 | 类型 | 约束 | 说明 |
 |--------|------|------|------|

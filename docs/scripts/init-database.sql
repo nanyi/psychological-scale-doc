@@ -130,6 +130,29 @@ CREATE TABLE IF NOT EXISTS sys_role_permission (
     INDEX idx_permission_id (permission_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色权限关联表';
 
+-- 部门表
+CREATE TABLE IF NOT EXISTS sys_department (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '部门ID',
+    department_name VARCHAR(100) NOT NULL COMMENT '部门名称',
+    parent_id BIGINT NOT NULL DEFAULT 0 COMMENT '父部门ID（0=一级部门）',
+    enterprise_id BIGINT COMMENT '企业ID',
+    leader VARCHAR(50) COMMENT '负责人',
+    phone VARCHAR(20) COMMENT '联系电话',
+    email VARCHAR(100) COMMENT '邮箱',
+    sort_order INT NOT NULL DEFAULT 0 COMMENT '排序',
+    status TINYINT NOT NULL DEFAULT 1 COMMENT '状态：0-禁用，1-启用',
+    description VARCHAR(500) COMMENT '描述',
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time DATETIME COMMENT '更新时间',
+    create_by BIGINT COMMENT '创建人',
+    update_by BIGINT COMMENT '更新人',
+    deleted TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除：0-正常，1-删除',
+    version INT DEFAULT 0 COMMENT '版本号',
+    INDEX idx_parent_id (parent_id),
+    INDEX idx_enterprise_id (enterprise_id),
+    INDEX idx_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='部门表';
+
 -- 用户分组表
 CREATE TABLE IF NOT EXISTS sys_user_group (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '分组ID',

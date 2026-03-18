@@ -347,6 +347,42 @@
 **索引**:
 - idx_task_id (task_id)
 
+#### 3.2.8 测评记录表 (ps_exam_record)
+
+| 字段名 | 类型 | 约束 | 说明 |
+|--------|------|------|------|
+| id | BIGINT | PK | 记录ID |
+| user_id | BIGINT | NOT NULL | 用户ID |
+| scale_id | BIGINT | NOT NULL | 量表ID |
+| record_no | VARCHAR(50) | UNIQUE, NOT NULL | 记录编号 |
+| exam_status | TINYINT | NOT NULL DEFAULT 0 | 测评状态：0-待开始，1-进行中，2-已完成，3-已暂停，4-已取消 |
+| total_score | INT | | 总分 |
+| score | DECIMAL(5,2) | | 得分 |
+| correct_count | INT | | 正确数 |
+| wrong_count | INT | | 错误数 |
+| blank_count | INT | | 空白数 |
+| answer_time | INT | | 答题时间(秒) |
+| start_time | DATETIME | | 开始时间 |
+| submit_time | DATETIME | | 提交时间 |
+| ip_address | VARCHAR(50) | | IP地址 |
+| device_info | VARCHAR(200) | | 设备信息 |
+| source | VARCHAR(50) | | 来源：pc、小程序、h5 |
+| enterprise_id | BIGINT | | 企业ID |
+| dimension_scores | TEXT | | 维度得分JSON |
+| create_time | DATETIME | NOT NULL | 创建时间 |
+| update_time | DATETIME | | 更新时间 |
+| create_by | BIGINT | | 创建人 |
+| update_by | BIGINT | | 更新人 |
+| deleted | TINYINT | NOT NULL DEFAULT 0 | 逻辑删除：0-正常，1-删除 |
+| version | INT | DEFAULT 0 | 版本号 |
+
+**索引**:
+- idx_user_id (user_id)
+- idx_scale_id (scale_id)
+- idx_record_no (record_no)
+- idx_exam_status (exam_status)
+- idx_create_time (create_time)
+
 ### 3.3 订单模块
 
 #### 3.3.1 订单表 (ps_order)

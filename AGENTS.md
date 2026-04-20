@@ -82,8 +82,8 @@ Psychological Scale 是一套功能全面、专业可靠、开箱即用的心理
 |------|------|
 | ps-common | 公共工具类、异常定义、枚举 |
 | ps-core | 核心实体、DTO、VO |
-| ps-security | 安全认证、权限控制 |
 | ps-api | API接口定义 |
+| ps-gateway | 网关服务、路由认证、限流熔断 |
 
 ---
 

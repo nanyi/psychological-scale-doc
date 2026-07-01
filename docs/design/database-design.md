@@ -461,20 +461,57 @@
 **索引**:
 - idx_order_no (order_no)
 
-#### 3.3.3 退款记录表 (ps_refund)
+#### 3.3.3 支付记录表 (pay_order)
+
+| 字段名 | 类型 | 约束 | 说明 |
+|--------|------|------|------|
+| id | BIGINT | PK | 支付ID |
+| order_id | BIGINT | NOT NULL | 订单ID |
+| order_no | VARCHAR(32) | NOT NULL | 订单编号 |
+| user_id | BIGINT | NOT NULL | 用户ID |
+| pay_amount | DECIMAL(10,2) | NOT NULL | 支付金额 |
+| pay_method | VARCHAR(20) | | 支付方式 |
+| trade_no | VARCHAR(64) | | 第三方交易号 |
+| transaction_id | VARCHAR(64) | | 微信/支付宝交易号 |
+| trade_status | VARCHAR(20) | | 交易状态 |
+| pay_time | DATETIME | | 支付时间 |
+| notify_data | TEXT | | 回调数据 |
+| status | TINYINT | NOT NULL DEFAULT 0 | 状态：0-待支付，1-已支付，2-已取消，3-退款中，4-已退款 |
+| create_time | DATETIME | NOT NULL | 创建时间 |
+| update_time | DATETIME | | 更新时间 |
+| deleted | TINYINT | NOT NULL DEFAULT 0 | 逻辑删除 |
+
+**索引**:
+- idx_order_no (order_no)
+- idx_user_id (user_id)
+- idx_trade_no (trade_no)
+
+#### 3.3.4 退款记录表 (pay_refund)
 
 | 字段名 | 类型 | 约束 | 说明 |
 |--------|------|------|------|
 | id | BIGINT | PK | 退款ID |
-| refund_no | VARCHAR(32) | UNIQUE, NOT NULL | 退款编号 |
-| order_no | VARCHAR(32) | NOT NULL | 原订单编号 |
-| order_item_id | BIGINT | NOT NULL | 订单项ID |
+| payment_id | BIGINT | NOT NULL | 支付记录ID |
+| order_id | BIGINT | NOT NULL | 订单ID |
+| order_no | VARCHAR(32) | NOT NULL | 订单编号 |
+| user_id | BIGINT | NOT NULL | 用户ID |
 | refund_amount | DECIMAL(10,2) | NOT NULL | 退款金额 |
-| refund_reason | VARCHAR(500) | | 退款原因 |
-| refund_status | TINYINT | NOT NULL DEFAULT 0 | 状态：0-处理中，1-成功，2-失败 |
-| refund_channel | TINYINT | | 退款渠道 |
+| refund_no | VARCHAR(32) | UNIQUE, NOT NULL | 退款编号 |
+| refund_method | VARCHAR(20) | | 退款方式 |
+| trade_refund_no | VARCHAR(64) | | 第三方退款单号 |
+| refund_status | VARCHAR(20) | | 退款状态 |
 | refund_time | DATETIME | | 退款时间 |
-| create_time | DATETIME | NOT NULL | 申请时间 |
+| refund_reason | VARCHAR(500) | | 退款原因 |
+| remark | VARCHAR(500) | | 备注 |
+| status | TINYINT | NOT NULL DEFAULT 0 | 状态：0-处理中，1-成功，2-失败 |
+| create_time | DATETIME | NOT NULL | 创建时间 |
+| update_time | DATETIME | | 更新时间 |
+| deleted | TINYINT | NOT NULL DEFAULT 0 | 逻辑删除 |
+
+**索引**:
+- idx_order_no (order_no)
+- idx_user_id (user_id)
+- idx_payment_id (payment_id)
 
 #### 3.3.4 用户配额表 (sys_user_quota)
 
@@ -669,15 +706,15 @@
                                       └──────────┘
 
 ┌──────────┐     ┌──────────┐     ┌──────────┐
-│ ps_order │────▶│ps_order  │     │ps_refund │
+│ oms_order │────▶│oms_order  │     │ pay_refund │
 │          │     │ _item    │     │          │
 └──────────┘     └──────────┘     └──────────┘
       │
       ▼
-┌──────────┐     ┌──────────┐
-│sys_user   │     │sys_enterprise│
-│ _quota   │     │  _quota   │
-└──────────┘     └──────────┘
+┌──────────┐     ┌──────────┐     ┌──────────┐
+│sys_user   │     │sys_enterprise│  │ pay_order │
+│ _quota   │     │  _quota   │     │          │
+└──────────┘     └──────────┘     └──────────┘
 
 ┌──────────┐     ┌──────────┐
 │ps_assess │────▶│ps_answer │
@@ -693,6 +730,6 @@
 
 ---
 
-*文档版本: 1.2*
-*最后更新: 2026-03-17*
+*文档版本: 1.3*
+*最后更新: 2026-07-01*
 *作者: Ryan*

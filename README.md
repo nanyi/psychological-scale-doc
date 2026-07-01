@@ -138,12 +138,10 @@ psychological-scale/                 # 项目根目录
 │   ├── ps-common/                # 公共模块
 │   ├── ps-core/                  # 核心模块
 │   ├── ps-api/                   # API接口
-│   ├── ps-user/                  # 用户服务
+│   ├── smart-system/              # 用户服务
 │   ├── ps-scale/                 # 量表服务
-│   ├── ps-order/                 # 订单服务
-│   ├── ps-payment/               # 支付服务
-│   ├── ps-report/                # 报告服务
-│   ├── ps-thirdparty/            # 第三方服务
+│   ├── smart-oms/                # 订单服务
+│   ├── smart-payment/            # 支付服务
 │   └── ps-analysis/              # 分析服务
 └── frontend/                     # 前端代码
     └── (Vue 3 + ElementUI)

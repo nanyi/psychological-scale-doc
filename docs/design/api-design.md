@@ -125,7 +125,7 @@ Response:
 | /api/group/member/remove | POST | 移除成员 |
 | /api/group/member/list | GET | 分组成员列表 |
 
-## 4. 量表服务API (ps-scale)
+## 4. 量表服务API (smart-scale)
 
 ### 4.1 量表管理
 
@@ -172,7 +172,7 @@ Response:
 | /api/assessment/list | GET | 测评记录列表 |
 | /api/assessment/{id} | GET | 测评详情 |
 
-## 5. 订单服务API (ps-order)
+## 5. 订单服务API (smart-oms)
 
 ### 5.1 订单管理
 
@@ -204,7 +204,7 @@ Response:
 | /api/enterprise/quota/list | GET | 企业配额列表 |
 | /api/enterprise/quota/assign | POST | 分配配额 |
 
-## 6. 支付服务API (ps-payment)
+## 6. 支付服务API (smart-payment)
 
 ### 6.1 支付接口
 
@@ -224,64 +224,64 @@ Response:
 | /api/payment/refund | POST | 申请退款 |
 | /api/payment/refund/query | GET | 退款查询 |
 
-## 7. 报告服务API (ps-report)
+## 7. 报告服务API (smart-scale/report)
 
 ### 7.1 报告管理
 
 | 接口路径 | 方法 | 说明 |
 |----------|------|------|
-| /api/report/generate | POST | 生成报告 |
-| /api/report/detail | GET | 报告详情 |
-| /api/report/list | GET | 报告列表 |
-| /api/report/{id} | GET | 报告内容 |
+| /api/scale/report/generate | POST | 生成报告 |
+| /api/scale/report/detail | GET | 报告详情 |
+| /api/scale/report/list | GET | 报告列表 |
+| /api/scale/report/{id} | GET | 报告内容 |
 
 ### 7.2 模板管理
 
 | 接口路径 | 方法 | 说明 |
 |----------|------|------|
-| /api/report/template/create | POST | 创建模板 |
-| /api/report/template/update | PUT | 更新模板 |
-| /api/report/template/delete | DELETE | 删除模板 |
-| /api/report/template/list | GET | 模板列表 |
-| /api/report/template/{id} | GET | 模板详情 |
+| /api/scale/report/template/create | POST | 创建模板 |
+| /api/scale/report/template/update | PUT | 更新模板 |
+| /api/scale/report/template/delete | DELETE | 删除模板 |
+| /api/scale/report/template/list | GET | 模板列表 |
+| /api/scale/report/template/{id} | GET | 模板详情 |
 
 ### 7.3 导出
 
 | 接口路径 | 方法 | 说明 |
 |----------|------|------|
-| /api/report/export/word | POST | 导出Word |
-| /api/report/export/pdf | POST | 导出PDF |
-| /api/report/download | GET | 下载报告 |
-| /api/report/share | POST | 分享报告 |
+| /api/scale/report/export/word | POST | 导出Word |
+| /api/scale/report/export/pdf | POST | 导出PDF |
+| /api/scale/report/download | GET | 下载报告 |
+| /api/scale/report/share | POST | 分享报告 |
 
-## 8. 第三方服务API (ps-thirdparty)
+## 8. 第三方服务API (smart-scale/thirdparty)
 
 ### 8.1 平台管理
 
 | 接口路径 | 方法 | 说明 |
 |----------|------|------|
-| /api/thirdparty/platform/add | POST | 添加平台 |
-| /api/thirdparty/platform/update | PUT | 更新平台 |
-| /api/thirdparty/platform/delete | DELETE | 删除平台 |
-| /api/thirdparty/platform/list | GET | 平台列表 |
-| /api/thirdparty/platform/test | POST | 测试连接 |
+| /api/scale/thirdparty/platform/add | POST | 添加平台 |
+| /api/scale/thirdparty/platform/update | PUT | 更新平台 |
+| /api/scale/thirdparty/platform/delete | DELETE | 删除平台 |
+| /api/scale/thirdparty/platform/list | GET | 平台列表 |
+| /api/scale/thirdparty/platform/test | POST | 测试连接 |
 
 ### 8.2 量表同步
 
 | 接口路径 | 方法 | 说明 |
 |----------|------|------|
-| /api/thirdparty/scale/sync | POST | 同步量表 |
-| /api/thirdparty/scale/list | GET | 第三方量表列表 |
-| /api/thirdparty/scale/questions | GET | 获取题目 |
+| /api/scale/thirdparty/scale/sync | POST | 同步量表 |
+| /api/scale/thirdparty/scale/list | GET | 第三方量表列表 |
+| /api/scale/thirdparty/scale/questions | GET | 获取题目 |
 
 ### 8.3 回调处理
 
 | 接口路径 | 方法 | 说明 |
 |----------|------|------|
-| /api/thirdparty/callback/report | POST | 报告回调 |
-| /api/thirdparty/callback/sync | POST | 同步回调 |
+| /api/scale/thirdparty/callback/report | POST | 报告回调 |
+| /api/scale/thirdparty/callback/sync | POST | 同步回调 |
 
-## 9. 分析服务API (ps-analysis)
+## 9. 分析服务API (smart-analysis)
 
 | 接口路径 | 方法 | 说明 |
 |----------|------|------|

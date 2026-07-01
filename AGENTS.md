@@ -78,12 +78,12 @@ Psychological Scale 是一套功能全面、专业可靠、开箱即用的心理
 
 ### 1.4 后端公共模块
 
-| 模块 | 说明 |
-|------|------|
-| ps-common | 公共工具类、异常定义、枚举 |
-| ps-core | 核心实体、DTO、VO |
-| ps-api | API接口定义 |
-| ps-gateway | 网关服务、路由认证、限流熔断 |
+| 模块            | 说明 |
+|---------------|------|
+| ps-common     | 公共工具类、异常定义、枚举 |
+| ps-core       | 核心实体、DTO、VO |
+| ps-api        | API接口定义 |
+| smart-gateway | 网关服务、路由认证、限流熔断 |
 
 ---
 
@@ -397,8 +397,6 @@ public [返回值类型] [methodName]([参数列表]) {
 |------|------|------|
 | ps-common | 公共工具类、异常定义、枚举、常量 | 无 |
 | ps-core | 核心实体、DTO、VO | ps-common |
-| ps-security | 安全认证、权限控制、认证拦截器 | ps-common, ps-core |
-| ps-api | API接口定义、Feign接口 | ps-common, ps-core |
 
 #### 模块详细设计
 

@@ -61,24 +61,23 @@
 ## 文档目录结构
 
 ```
-psychological-scale/                 # 项目根目录
+psychological-scale/                # 项目根目录
 ├── AGENTS.md                       # 开发指南
 ├── backend/                        # 后端代码
 │   ├── ps-common/                  # 公共模块
 │   ├── ps-core/                    # 核心模块
-│   ├── ps-security/                # 安全模块
 │   ├── ps-api/                     # API接口
-│   ├── ps-user/                    # 用户服务
-│   ├── ps-scale/                   # 量表服务
-│   ├── ps-order/                   # 订单服务
-│   ├── ps-payment/                  # 支付服务
-│   ├── ps-report/                   # 报告服务
-│   ├── ps-thirdparty/              # 第三方服务
-│   └── ps-analysis/                 # 分析服务
+│   ├── smart-scale/                # 量表服务
+│   │   ├── report/                 # 报告模块
+│   │   └── thirdparty/             # 第三方服务模块
+│   ├── smart-analysis/             # 分析服务
+│   ├── smart-oms/                  # 订单服务
+│   ├── smart-payment/              # 支付服务
+│   └── smart-system/              # 系统服务
 ├── frontend/                       # 前端代码
-└── docs/                          # 文档
-    ├── requirements/                    # 需求文档
-    │   ├── 需求文档模板.md              # 需求文档模板
+└── docs/                           # 文档
+    ├── requirements/               # 需求文档
+    │   ├── 需求文档模板.md            # 需求文档模板
     │   ├── MOD-001-用户与账户管理/
     │   │   └── 用户与账户管理需求文档.md
     │   ├── MOD-002-量表库管理与测评执行/

@@ -84,15 +84,15 @@ Psychological Scale 是一套功能全面、专业可靠、开箱即用的心理
          ┌───────────────────────────┼───────────────────────────┐
          ▼                           ▼                           ▼
 ┌───────────────┐          ┌───────────────┐          ┌───────────────┐
-│  用户服务     │          │  量表服务     │          │  订单服务     │
-│  (User)       │          │  (Scale)      │          │  (Order)      │
+│  系统服务     │          │  量表服务     │          │  订单服务     │
+│  (System)    │          │  (Scale)      │          │  (Oms)       │
 └───────────────┘          └───────────────┘          └───────────────┘
-        │                           │                           │
-        ▼                           ▼                           ▼
-┌───────────────┐          ┌───────────────┐          ┌───────────────┐
-│  支付服务     │          │  报告服务     │          │  第三方服务   │
-│  (Payment)   │          │  (Report)     │          │  (ThirdParty)│
-└───────────────┘          └───────────────┘          └───────────────┘
+        │
+        ▼ 
+┌───────────────┐
+│  支付服务     │
+│  (Payment)   │ 
+└───────────────┘ 
 ```
 
 ## 应用场景
@@ -112,11 +112,11 @@ Psychological Scale 是一套功能全面、专业可靠、开箱即用的心理
 ## 项目结构
 
 ```
-psychological-scale/                 # 项目根目录
-├── AGENTS.md                       # 开发指南
-├── README.md                       # 项目总览
+psychological-scale/               # 项目根目录
+├── AGENTS.md                      # 开发指南
+├── README.md                      # 项目总览
 ├── docs/                          # 项目文档
-│   ├── requirements/               # 需求文档
+│   ├── requirements/              # 需求文档
 │   │   ├── MOD-001-用户与账户管理/
 │   │   ├── MOD-002-量表库管理与测评执行/
 │   │   ├── MOD-003-量表订单与支付/
@@ -134,16 +134,22 @@ psychological-scale/                 # 项目根目录
 │   ├── test/                      # 测试文档
 │   └── psychological-scale/       # 量表模板
 ├── backend/                       # 后端代码
-│   ├── ps-gateway/               # 网关服务
-│   ├── ps-common/                # 公共模块
-│   ├── ps-core/                  # 核心模块
-│   ├── ps-api/                   # API接口
-│   ├── smart-system/              # 用户服务
-│   ├── ps-scale/                 # 量表服务
-│   ├── smart-oms/                # 订单服务
-│   ├── smart-payment/            # 支付服务
-│   └── ps-analysis/              # 分析服务
-└── frontend/                     # 前端代码
+│   ├── ps-common/                 # 公共模块
+│   ├── ps-core/                   # 核心模块
+│   ├── ps-api/                    # API接口模块
+│   ├── smart-scale/               # 量表服务
+│   │   ├── scale/                 # 量表服务API
+│   │   ├── analysis/              # 分析模块
+│   │   ├── report/                # 报告模块
+│   │   └── thirdparty/            # 第三方服务模块
+│   ├── smart-gateway/             # 网关服务
+│   ├── smart-analysis/            # 分析服务
+│   ├── smart-oms/                 # 订单服务
+│   │   └── order/                 # 订单服务API
+│   ├── smart-payment/             # 支付服务
+│   └── smart-system/             # 系统服务
+│       └── user/                  # 用户服务API
+└── frontend/                      # 前端代码
     └── (Vue 3 + ElementUI)
 ```
 
@@ -208,9 +214,9 @@ npm run dev
 - `POST /api/assessment/start` - 开始测评
 
 ### 报告模块
-- `POST /api/report/generate` - 生成报告
-- `POST /api/report/export/word` - 导出Word
-- `POST /api/report/export/pdf` - 导出PDF
+- `POST /api/scale/report/generate` - 生成报告
+- `POST /api/scale/report/export/word` - 导出Word
+- `POST /api/scale/report/export/pdf` - 导出PDF
 
 详细API文档请参考 [API设计文档](docs/design/api-design.md)。
 

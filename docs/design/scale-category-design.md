@@ -48,16 +48,14 @@ CREATE TABLE IF NOT EXISTS ps_scale_category (
 
 ### 3.1 模块结构
 
-分类实体在 `ps-core` 公共模块，分类管理功能在 `ps-scale` 服务中实现：
+分类管理功能在 `smart-scale` 服务中实现：
 
 ```
-ps-core/（实体模块）
-├── entity/
-    └── ScaleCategory.java               # 分类实体
-
-ps-scale/（量表服务）
+smart-scale/（量表服务）
 ├── controller/
 │   └── ScaleCategoryController.java    # 分类管理控制器
+├── entity/
+│   └── ScaleCategory.java               # 分类实体
 ├── service/
 │   ├── ScaleCategoryService.java       # 分类服务接口
 │   └── impl/ScaleCategoryServiceImpl.java # 分类服务实现
@@ -69,7 +67,7 @@ ps-scale/（量表服务）
 
 ### 3.2 实体设计
 
-**ScaleCategory.java** (`ps-core` 模块)
+**ScaleCategory.java** 
 
 | 字段 | 类型 | 说明 |
 |------|------|------|

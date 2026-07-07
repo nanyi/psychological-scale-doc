@@ -734,5 +734,96 @@ CREATE TABLE IF NOT EXISTS ps_statistics (
 -- }
 
 -- ============================================================
+-- 9. 登录与会话管理模块
+-- ============================================================
+
+-- 登录策略表
+CREATE TABLE IF NOT EXISTS sys_login_strategy (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
+    tenant_id BIGINT NOT NULL DEFAULT 0 COMMENT '租户ID，0表示全局策略',
+    login_policy TINYINT NOT NULL DEFAULT 3 COMMENT '登录策略: 1-单端, 2-多端, 3-同端互斥',
+    logout_policy TINYINT NOT NULL DEFAULT 3 COMMENT '注销策略: 1-单端, 2-全端, 3-同端',
+    allow_remember_me TINYINT NOT NULL DEFAULT 1 COMMENT '是否允许记住我: 0-否, 1-是',
+    remember_me_expire_seconds INT DEFAULT 2592000 COMMENT '记住我有效期: 30天(秒)',
+    offline_timeout_seconds INT DEFAULT 1800 COMMENT '离线超时时间(秒)',
+    access_token_expire_seconds INT DEFAULT 7200 COMMENT 'AccessToken有效期(秒)',
+    refresh_token_expire_seconds INT DEFAULT 604800 COMMENT 'RefreshToken有效期(秒)',
+    is_active TINYINT NOT NULL DEFAULT 1 COMMENT '是否启用: 0-禁用, 1-启用',
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time DATETIME COMMENT '更新时间',
+    deleted TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除: 0-正常, 1-删除',
+    UNIQUE KEY uk_tenant (tenant_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='登录策略表';
+
+-- 默认全局策略
+INSERT INTO sys_login_strategy (tenant_id, login_policy, logout_policy, allow_remember_me, remember_me_expire_seconds, offline_timeout_seconds, access_token_expire_seconds, refresh_token_expire_seconds)
+VALUES (0, 3, 3, 1, 2592000, 1800, 7200, 604800);
+
+-- 在线会话表
+CREATE TABLE IF NOT EXISTS sys_online_session (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
+    user_id BIGINT NOT NULL COMMENT '用户ID',
+    username VARCHAR(64) NOT NULL COMMENT '用户名',
+    tenant_id BIGINT NOT NULL DEFAULT 0 COMMENT '租户ID',
+    enterprise_id BIGINT COMMENT '企业ID',
+    department_id BIGINT COMMENT '部门ID',
+    device_type VARCHAR(32) NOT NULL COMMENT '设备类型: web,app,miniprogram,pc',
+    device_id VARCHAR(128) NOT NULL COMMENT '设备唯一标识',
+    device_name VARCHAR(128) COMMENT '设备名称(可选)',
+    token_version INT NOT NULL DEFAULT 1 COMMENT 'Token版本号',
+    access_token VARCHAR(512) COMMENT '访问令牌(加密存储)',
+    refresh_token VARCHAR(512) COMMENT '刷新令牌(加密存储)',
+    client_id VARCHAR(64) COMMENT 'OAuth2客户端ID',
+    login_method VARCHAR(32) COMMENT '登录方式: password,oauth2_authorization_code,oauth2_password',
+    login_time DATETIME NOT NULL COMMENT '登录时间',
+    last_access_time DATETIME COMMENT '最后访问时间',
+    expire_time DATETIME NOT NULL COMMENT '会话过期时间',
+    status TINYINT NOT NULL DEFAULT 1 COMMENT '状态: 1-在线, 2-离线, 3-已下线, 4-被踢出',
+    ip_address VARCHAR(64) COMMENT 'IP地址',
+    user_agent VARCHAR(512) COMMENT 'User-Agent/客户端信息',
+    remember_me TINYINT DEFAULT 0 COMMENT '是否记住我',
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time DATETIME COMMENT '更新时间',
+    deleted TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除: 0-正常, 1-删除',
+    UNIQUE KEY uk_user_device (user_id, device_type, device_id),
+    INDEX idx_user_id (user_id),
+    INDEX idx_tenant_id (tenant_id),
+    INDEX idx_device_type (device_type),
+    INDEX idx_status (status),
+    INDEX idx_last_access_time (last_access_time),
+    INDEX idx_expire_time (expire_time)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='在线会话表';
+
+-- ============================================================
+-- 7. 登录日志表
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS `sys_login_log` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '访问ID',
+  `log_type` tinyint NOT NULL COMMENT '日志类型：1-登录，2-注销，3-刷新Token，4-踢出',
+  `trace_id` varchar(64) NOT NULL DEFAULT '' COMMENT '链路追踪编号',
+  `user_id` bigint NOT NULL DEFAULT 0 COMMENT '用户编号',
+  `user_type` tinyint NOT NULL DEFAULT 0 COMMENT '用户类型',
+  `username` varchar(50) NOT NULL DEFAULT '' COMMENT '用户账号',
+  `result` tinyint NOT NULL COMMENT '登录结果：1-成功，2-失败',
+  `fail_reason` varchar(255) DEFAULT NULL COMMENT '失败原因',
+  `user_ip` varchar(50) NOT NULL COMMENT '用户IP',
+  `user_agent` varchar(512) NOT NULL COMMENT '浏览器UA',
+  `device_type` varchar(32) DEFAULT NULL COMMENT '设备类型',
+  `device_id` varchar(128) DEFAULT NULL COMMENT '设备唯一标识',
+  `login_time` datetime NOT NULL COMMENT '登录时间',
+  `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` tinyint NOT NULL DEFAULT 0 COMMENT '逻辑删除',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_user_id`(`user_id`),
+  INDEX `idx_username`(`username`),
+  INDEX `idx_login_time`(`login_time`),
+  INDEX `idx_tenant_id`(`tenant_id`),
+  INDEX `idx_log_type`(`log_type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='系统登录日志';
+
+-- ============================================================
 -- 脚本执行完成
 -- ============================================================

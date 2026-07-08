@@ -69,10 +69,10 @@ INSERT INTO sys_permission (permission_name, permission_code, permission_type, p
 ('修改登录策略', 'system:login-strategy:update', 3, 24, 'MOD-007', 5),
 -- 系统配置模块（MOD-008）
 ('配置管理', 'system:config:manage', 1, NULL, 'MOD-008', 8),
-('配置查看', 'system:config:list', 2, 30, 'MOD-008', 1),
-('配置新增', 'system:config:add', 3, 30, 'MOD-008', 2),
-('配置修改', 'system:config:update', 3, 30, 'MOD-008', 3),
-('配置删除', 'system:config:delete', 3, 30, 'MOD-008', 4);
+('配置查看', 'system:config:list', 2, 25, 'MOD-008', 1),
+('配置新增', 'system:config:add', 3, 25, 'MOD-008', 2),
+('配置修改', 'system:config:update', 3, 25, 'MOD-008', 3),
+('配置删除', 'system:config:delete', 3, 25, 'MOD-008', 4);
 
 -- 为超级管理员角色分配所有权限
 INSERT INTO sys_role_permission (role_id, permission_id)
@@ -181,6 +181,15 @@ SELECT 1, id FROM sys_permission WHERE permission_code IN (
     'system:session:kick',
     'system:login-strategy:list',
     'system:login-strategy:update'
+) AND id NOT IN (SELECT permission_id FROM sys_role_permission WHERE role_id = 1);
+
+-- 为超级管理员角色分配新增的系统配置权限
+INSERT INTO sys_role_permission (role_id, permission_id)
+SELECT 1, id FROM sys_permission WHERE permission_code IN (
+    'system:config:list',
+    'system:config:add',
+    'system:config:update',
+    'system:config:delete'
 ) AND id NOT IN (SELECT permission_id FROM sys_role_permission WHERE role_id = 1);
 
 -- ============================================================

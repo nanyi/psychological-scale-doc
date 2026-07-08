@@ -203,6 +203,7 @@ CREATE TABLE IF NOT EXISTS `sys_tenant` (
 -- OAuth2客户端表
 CREATE TABLE IF NOT EXISTS `sys_oauth2_client` (
     `id` BIGINT PRIMARY KEY NOT NULL AUTO_INCREMENT COMMENT '编号',
+    `tenant_id` BIGINT NOT NULL DEFAULT 0 COMMENT '租户编号',
     `client_id` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '客户端编号',
     `secret` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '客户端密钥',
     `name` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '应用名',
@@ -223,7 +224,7 @@ CREATE TABLE IF NOT EXISTS `sys_oauth2_client` (
     `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_by` BIGINT COMMENT '更新人',
     `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
-) ENGINE = INNODB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = 'OAuth2客户端表'
+) ENGINE = INNODB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = 'OAuth2客户端表';
 
 -- OAuth2访问令牌表
 CREATE TABLE IF NOT EXISTS `sys_oauth2_access_token` (
@@ -231,8 +232,8 @@ CREATE TABLE IF NOT EXISTS `sys_oauth2_access_token` (
     `user_id` BIGINT NOT NULL COMMENT '用户编号',
     `user_type` TINYINT NOT NULL COMMENT '用户类型',
     `user_info` VARCHAR(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '用户信息',
-    `access_token` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '访问令牌',
-    `refresh_token` VARCHAR(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '刷新令牌',
+    `access_token` VARCHAR(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '访问令牌',
+    `refresh_token` VARCHAR(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '刷新令牌',
     `client_id` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '客户端编号',
     `scopes` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '授权范围',
     `expires_time` DATETIME NOT NULL COMMENT '过期时间',
@@ -256,7 +257,7 @@ CREATE TABLE IF NOT EXISTS `sys_oauth2_access_token` (
 CREATE TABLE IF NOT EXISTS `sys_oauth2_refresh_token` (
     `id` BIGINT PRIMARY KEY NOT NULL AUTO_INCREMENT COMMENT '编号',
     `user_id` BIGINT NOT NULL COMMENT '用户编号',
-    `refresh_token` VARCHAR(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '刷新令牌',
+    `refresh_token` VARCHAR(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '刷新令牌',
     `user_type` TINYINT NOT NULL COMMENT '用户类型',
     `client_id` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '客户端编号',
     `scopes` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '授权范围',
@@ -517,7 +518,7 @@ CREATE TABLE IF NOT EXISTS `order_refund` (
     `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '申请时间',
     UNIQUE KEY `refund_no` (`refund_no`),
     INDEX `idx_order_no` (`order_no`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='订单退款记录表'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='订单退款记录表';
 
 -- 支付记录表
 CREATE TABLE IF NOT EXISTS `pay_order` (
@@ -832,7 +833,9 @@ CREATE TABLE IF NOT EXISTS `sys_login_log` (
     `login_time` DATETIME NOT NULL COMMENT '登录时间',
     `tenant_id` BIGINT NOT NULL DEFAULT 0 COMMENT '租户编号',
     `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `create_by` BIGINT COMMENT '创建人',
     `update_time` DATETIME DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `update_by` BIGINT COMMENT '更新人',
     `deleted` tinyint NOT NULL DEFAULT 0 COMMENT '逻辑删除',
     INDEX `idx_user_id`(`user_id`),
     INDEX `idx_username`(`username`),
@@ -840,6 +843,29 @@ CREATE TABLE IF NOT EXISTS `sys_login_log` (
     INDEX `idx_tenant_id`(`tenant_id`),
     INDEX `idx_log_type`(`log_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='系统登录日志';
+
+-- ============================================================
+-- 系统配置表
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS `sys_config` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '参数主键',
+    `category` VARCHAR(50) NOT NULL COMMENT '参数分组：basic/security/notification/email/other',
+    `config_type` TINYINT NOT NULL COMMENT '参数类型：1-文本，2-数字，3-布尔，4-JSON',
+    `config_name` VARCHAR(100) NOT NULL DEFAULT '' COMMENT '参数名称',
+    `config_key` VARCHAR(100) NOT NULL DEFAULT '' COMMENT '参数键名',
+    `config_value` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '参数键值',
+    `visible` BIT(1) NOT NULL DEFAULT b'1' COMMENT '是否可见（1-可见，0-隐藏）',
+    `is_system` BIT(1) NOT NULL DEFAULT b'0' COMMENT '是否系统内置（1-内置，0-非内置）',
+    `remark` VARCHAR(500) NULL DEFAULT NULL COMMENT '备注说明',
+    `deleted` BIT(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+    `create_by` VARCHAR(64) NULL DEFAULT '' COMMENT '创建者',
+    `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_by` VARCHAR(64) NULL DEFAULT '' COMMENT '更新者',
+    `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_category_key` (`category`, `config_key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='参数配置表';
 
 -- ============================================================
 -- 脚本执行完成

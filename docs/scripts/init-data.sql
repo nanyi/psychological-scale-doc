@@ -66,7 +66,13 @@ INSERT INTO sys_permission (permission_name, permission_code, permission_type, p
 ('会话列表', 'system:session:list', 2, 24, 'MOD-007', 2),
 ('踢出会话', 'system:session:kick', 3, 24, 'MOD-007', 3),
 ('登录策略', 'system:login-strategy:list', 2, 24, 'MOD-007', 4),
-('修改登录策略', 'system:login-strategy:update', 3, 24, 'MOD-007', 5);
+('修改登录策略', 'system:login-strategy:update', 3, 24, 'MOD-007', 5),
+-- 系统配置模块（MOD-008）
+('配置管理', 'system:config:manage', 1, NULL, 'MOD-008', 8),
+('配置查看', 'system:config:list', 2, 30, 'MOD-008', 1),
+('配置新增', 'system:config:add', 3, 30, 'MOD-008', 2),
+('配置修改', 'system:config:update', 3, 30, 'MOD-008', 3),
+('配置删除', 'system:config:delete', 3, 30, 'MOD-008', 4);
 
 -- 为超级管理员角色分配所有权限
 INSERT INTO sys_role_permission (role_id, permission_id)
@@ -181,13 +187,8 @@ SELECT 1, id FROM sys_permission WHERE permission_code IN (
 -- OAuth2 客户端初始化数据
 -- ============================================================
 
-INSERT INTO sys_oauth2_client (
-    tenant_id, client_id, secret, name, logo, description, status,
-    access_token_validity_seconds, refresh_token_validity_seconds,
-    redirect_uris, allowed_grant_types, allowed_scopes, auto_approve_scopes
-) VALUES (
-    0,
-    'default',
+INSERT INTO sys_oauth2_client (`tenant_id`,`client_id`,`secret`,`name`,`logo`,`description`,`status`,`access_token_validity_seconds`,`refresh_token_validity_seconds`,`redirect_uris`,`allowed_grant_types`,`allowed_scopes`,`auto_approve_scopes`,`authorities`,`resource_ids`,`additional_information`,`deleted`)
+VALUES (0, 'default',
     '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', -- 客户端密钥(BCrypt加密)
     '心理测评系统',
     '/logo.png',
@@ -195,8 +196,47 @@ INSERT INTO sys_oauth2_client (
     1,
     7200,       -- AccessToken有效期: 2小时
     604800,     -- RefreshToken有效期: 7天
-    '/login,/callback',
-    'password,refresh_token,authorization_code',
-    'user_info,profile',
-    'user_info,profile'
+    '[\"/login\",\"/callback\"]',
+    '[\"password\",\"refresh_token\",\"authorization_code\"]',
+    '[\"user_info\",\"profile\"]',
+    '[\"user_info\",\"profile\"]',
+    '',
+    '',
+    '',
+    0
 );
+
+-- ============================================================
+-- 系统配置初始数据
+-- ============================================================
+
+-- 基本设置
+INSERT INTO sys_config (category, config_type, config_name, config_key, config_value, visible, is_system, remark) VALUES
+('basic', 1, '系统名称', 'system_name', '心理测评系统', b'1', b'1', ''),
+('basic', 1, '系统Logo', 'system_logo', '', b'1', b'1', ''),
+('basic', 1, '系统描述', 'system_description', '', b'1', b'1', ''),
+('basic', 1, '版权信息', 'copyright', '© 2024', b'1', b'1', '');
+
+-- 安全设置
+INSERT INTO sys_config (category, config_type, config_name, config_key, config_value, visible, is_system, remark) VALUES
+('security', 2, '登录超时时间', 'login_timeout', '30', b'1', b'1', '单位：分钟'),
+('security', 2, '密码最小长度', 'password_min_length', '8', b'1', b'1', ''),
+('security', 3, '密码需要特殊字符', 'password_require_special_char', 'true', b'1', b'1', ''),
+('security', 3, '密码需要数字', 'password_require_number', 'true', b'1', b'1', ''),
+('security', 3, '密码需要大写字母', 'password_require_uppercase', 'false', b'1', b'1', ''),
+('security', 2, '登录失败锁定次数', 'login_fail_lock', '5', b'1', b'1', ''),
+('security', 1, 'IP白名单', 'ip_whitelist', '', b'1', b'1', '多个用逗号分隔');
+
+-- 通知设置
+INSERT INTO sys_config (category, config_type, config_name, config_key, config_value, visible, is_system, remark) VALUES
+('notification', 3, '邮件通知开关', 'email_notification_enabled', 'true', b'1', b'1', ''),
+('notification', 1, '邮件模板', 'email_template', '', b'1', b'1', ''),
+('notification', 3, '短信通知开关', 'sms_notification_enabled', 'false', b'1', b'1', ''),
+('notification', 1, '短信模板', 'sms_template', '', b'1', b'1', ''),
+('notification', 3, '站内信通知开关', 'site_message_enabled', 'true', b'1', b'1', '');
+
+-- 邮件配置
+INSERT INTO sys_config (category, config_type, config_name, config_key, config_value, visible, is_system, remark) VALUES
+('email', 1, '邮箱服务器', 'email_host', '', b'1', b'1', '如 smtp.example.com'),
+('email', 1, '邮箱账号', 'email_username', '', b'1', b'1', ''),
+('email', 1, '邮箱授权码', 'email_password', '', b'1', b'1', '授权码非密码');

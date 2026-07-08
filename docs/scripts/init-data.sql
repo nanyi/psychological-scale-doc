@@ -176,3 +176,27 @@ SELECT 1, id FROM sys_permission WHERE permission_code IN (
     'system:login-strategy:list',
     'system:login-strategy:update'
 ) AND id NOT IN (SELECT permission_id FROM sys_role_permission WHERE role_id = 1);
+
+-- ============================================================
+-- OAuth2 客户端初始化数据
+-- ============================================================
+
+INSERT INTO sys_oauth2_client (
+    tenant_id, client_id, secret, name, logo, description, status,
+    access_token_validity_seconds, refresh_token_validity_seconds,
+    redirect_uris, allowed_grant_types, allowed_scopes, auto_approve_scopes
+) VALUES (
+    0,
+    'default',
+    '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', -- 客户端密钥(BCrypt加密)
+    '心理测评系统',
+    '/logo.png',
+    '心理测评系统默认OAuth2客户端',
+    1,
+    7200,       -- AccessToken有效期: 2小时
+    604800,     -- RefreshToken有效期: 7天
+    '/login,/callback',
+    'password,refresh_token,authorization_code',
+    'user_info,profile',
+    'user_info,profile'
+);

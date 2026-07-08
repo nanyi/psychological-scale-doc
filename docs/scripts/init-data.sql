@@ -59,7 +59,14 @@ INSERT INTO sys_permission (permission_name, permission_code, permission_type, p
 -- 报告管理模块
 ('报告管理', 'report:manage', 1, NULL, 'MOD-006', 5),
 ('报告查看', 'report:view', 3, 17, 'MOD-006', 1),
-('报告导出', 'report:export', 3, 17, 'MOD-006', 2);
+('报告导出', 'report:export', 3, 17, 'MOD-006', 2),
+-- 会话管理模块（MOD-007）
+('会话管理', 'system:session:manage', 1, NULL, 'MOD-007', 6),
+('登录日志', 'system:login-log:list', 2, 24, 'MOD-007', 1),
+('会话列表', 'system:session:list', 2, 24, 'MOD-007', 2),
+('踢出会话', 'system:session:kick', 3, 24, 'MOD-007', 3),
+('登录策略', 'system:login-strategy:list', 2, 24, 'MOD-007', 4),
+('修改登录策略', 'system:login-strategy:update', 3, 24, 'MOD-007', 5);
 
 -- 为超级管理员角色分配所有权限
 INSERT INTO sys_role_permission (role_id, permission_id)
@@ -155,3 +162,17 @@ INSERT INTO ps_norm_data (scale_id, dimension_id, group_type, group_value, mean,
 (1, 1, 'gender', 'female', 1.42, 0.52, 1000, '中国常模'),
 (1, 4, 'gender', 'male', 1.65, 0.58, 1000, '中国常模'),
 (1, 4, 'gender', 'female', 1.82, 0.62, 1000, '中国常模');
+
+-- 默认全局策略
+INSERT INTO sys_login_strategy (tenant_id, login_policy, logout_policy, allow_remember_me, remember_me_expire_seconds, offline_timeout_seconds, access_token_expire_seconds, refresh_token_expire_seconds)
+VALUES (0, 3, 3, 1, 2592000, 1800, 7200, 604800);
+
+-- 为超级管理员角色分配新增的会话管理权限
+INSERT INTO sys_role_permission (role_id, permission_id)
+SELECT 1, id FROM sys_permission WHERE permission_code IN (
+    'system:login-log:list',
+    'system:session:list',
+    'system:session:kick',
+    'system:login-strategy:list',
+    'system:login-strategy:update'
+) AND id NOT IN (SELECT permission_id FROM sys_role_permission WHERE role_id = 1);
